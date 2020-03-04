@@ -37,7 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'kanban'
+    'rest_framework',
+    'slack',
+    'kanban',
+    'proyectos',
+    'usuarios'
+
 ]
 
 MIDDLEWARE = [
@@ -124,3 +129,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, '/static/'),
     '/home/pechel/Dev/Dev/python/batools/templates/static',
 ]
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = 'media/'
+

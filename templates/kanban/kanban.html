@@ -1,0 +1,682 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block extracss %}
+    <!-- Plugins css -->
+        <link href="{% static 'assets/libs/jquery-toast/jquery.toast.min.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'assets/libs/quill/quill.core.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'assets/libs/quill/quill.bubble.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{%  static 'assets/libs/quill/quill.snow.css'%}" rel="stylesheet" type="text/css" />
+{%  endblock%}
+        <!-- ============================================================== -->
+        <!-- Start Page Content here -->
+        <!-- ============================================================== -->
+
+                {% block config %}
+                    <a href="javascript:void(0);" class="nav-link right-bar-toggle waves-effect waves-light">
+                                            <i class="fe-settings noti-icon"></i></a>
+                {% endblock %}
+
+                {% block breadcrumb %}
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Minton</a></li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Apps</a></li>
+                    <li class="breadcrumb-item active">Kanban Board</li>
+                {% endblock %}
+
+                {% block title %} Kanban {% endblock %}
+
+                {% block rows %}
+                    <div class="row">
+                        {% for lista in listas %}
+                            <div class="col-lg-3">
+                                <div class="card-box">
+                                    <div class="dropdown float-right">
+                                        <a href="#" class="dropdown-toggle arrow-none" data-toggle="dropdown" aria-expanded="false">
+                                            <i class="mdi mdi-dots-vertical m-0 text-muted h3"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                            <a class="dropdown-item" href="#">Add Members</a>
+                                            <a class="dropdown-item" href="#">Add Due Date</a>
+                                        </div>
+                                    </div> <!-- end dropdown -->
+
+                                    <h4 class="header-title">{{lista.nombre}}</h4>
+                                    <p class="sub-header"></p>
+
+                                    <ul class="sortable-list kanbanlist tasklist list-unstyled" id="{{ lista.estatus.clave }}">
+
+                                        {% for tarea in lista.tareas %}
+                                            <li id="task-{{ tarea.id }}" class="task-medium">
+                                                <div class="checkbox checkbox-blue mb-2 checkbox-single float-right">
+                                                    <input type="checkbox">
+                                                    <label></label>
+                                                </div>
+
+                                                <h5 class="mt-0">
+                                                    <a id="detalle-{{ tarea.id }}" href="javascript:void(0);" class="waves-effect waves-light" data-toggle="modal" data-target=".bs-example-modal-xl">
+                                                        {{ tarea.nombre }}
+                                                    </a>
+                                                </h5>
+
+                                                <p></p>
+
+                                                <div class="clearfix"></div>
+
+                                                <div class="row">
+                                                    <div class="col-auto" id="seccion-participantes">
+
+                                                        <div class="btn-group">
+                                                            <button type="button" id="seleccion-usuario-tarea" class="btn btn-sm  btn-outline-info dropdown-toggle waves-effect" data-toggle="dropdown" aria-expanded="false">
+                                                                <i class="mdi font-18"></i>
+                                                                <i class="mdi mdi-account"></i>
+                                                            </button>
+                                                            <div class="dropdown-menu" >
+                                                                <span class="dropdown-header">Asignar esta tarea :</span>
+                                                                {% for participante in equipo %}
+                                                                 <a id="asignacionlista-{{ tarea.id }}-{{ participante.usuario.id }}" class="dropdown-item participante-tarea" data-value="{{ tarea.id }}-{{ participante.usuario.id }}" href="javascript: void(0);">{{ participante.usuario.username }}</a>
+                                                                {% endfor %}
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    {% for asignacion in tarea.asignaciones %}
+                                                     <a  id="asignacion-{{ tarea.id }}-{{ asignacion.usuario.id }}" href="javascript: void(0);" class="text-muted">
+                                                         <img src="/{{ asignacion.perfil.avatar.url }}" alt="task-user" title="{{ asignacion.usuario.username }}" class="avatar-sm img-thumbnail rounded-circle">
+                                                     </a>
+                                                        {% endfor %}
+
+                                                    </div>
+                                                    <div class="col">
+                                                        <div class="text-right">
+                                                            <p class="font-13 mt-2 mb-0"><i class="mdi mdi-calendar"></i> {{ tarea.fin|default_if_none:"Programa esta actividad" }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                <br>
+                                <textarea id="nuevatarea-{{ lista.estatus.clave }}" class="form-control tasklist nueva-tarea" placeholder="Escribe algo interesante, al finalizar, dale Intro"></textarea>
+                            </div>
+                            </div> <!-- end col -->
+                        {% endfor %}
+                    </div>
+                <!-- end row -->
+                {% endblock %}
+
+
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
+        {% block sidebar %}
+            <!-- Config kanban -->
+            <div class="right-bar" id="configuracion">
+            <div class="rightbar-title">
+                <a href="javascript:void(0);" class="right-bar-toggle float-right">
+                    <i class="fe-x noti-icon"></i>
+                </a>
+                <h4 class="m-0 text-white">Configuración </h4>
+            </div>
+            <div class="slimscroll-menu">
+
+                <ul class="nav nav-pills bg-light nav-justified">
+                    <li class="nav-item">
+                        <a href="#home1" data-toggle="tab" aria-expanded="false" class="nav-link rounded-0">
+                            Configuración:
+                        </a>
+                    </li>
+
+                </ul>
+                <div class="tab-content pl-3 pr-3">
+                    <div class="tab-pane active" id="home1">
+                        <div class="row mb-2">
+                            <div class="col">
+                                <h5 class="m-0 font-15">Notifications</h5>
+                                <p class="text-muted"><small>Do you need them?</small></p>
+                            </div> <!-- end col-->
+                            <div class="col-auto">
+                                <div class="custom-control custom-switch mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="tabswitch1">
+                                    <label class="custom-control-label" for="tabswitch1"></label>
+                                </div>
+                            </div> <!-- end col -->
+                        </div>
+                        <!-- end row-->
+
+                    </div>
+
+                </div>
+
+            </div> <!-- end slimscroll-menu-->
+        </div>
+        {% endblock %}
+
+        {% block components %}
+
+        <div id="modal-detalle" class="modal fade bs-example-modal-xl" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="titulo-tarea">Tarea</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Right Sidebar -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card-box">
+                                    <!-- Left sidebar -->
+
+                                    <!-- End Left sidebar -->
+
+
+                                        <div class="mt-auto">
+
+                                            <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-light waves-effect"><i class="mdi mdi-archive font-18"></i></button>
+                                            <button type="button" class="btn btn-sm btn-light waves-effect"><i class="mdi mdi-delete-variant font-18"></i></button>
+                                        </div>
+
+                                        <div class="btn-group">
+                                            <button type="button" id="texto-prioridad-tarea" class="btn btn-sm btn-light dropdown-toggle waves-effect" data-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi font-18"></i> Prioridad alta
+                                                <i class="mdi mdi-chevron-down"></i>
+                                            </button>
+                                            <div class="dropdown-menu" >
+                                                <span class="dropdown-header">Cambiar la prioridad :</span>
+                                                <a class="dropdown-item prioridad-tarea" href="javascript: void(0);">Sin prioridad</a>
+                                                {% for prioridad in prioridades %}
+                                                 <a class="dropdown-item prioridad-tarea" data-value="{{ prioridad.id }}" href="javascript: void(0);">{{ prioridad.descripcion }}</a>
+                                                {% endfor %}
+
+
+                                            </div>
+                                        </div>
+                                            <div class="btn-group float-right">
+                                                <div class="media mb-4 mt-1">
+                                                <img id="imagen-autor-tarea" class="d-flex mr-2 rounded-circle avatar-sm" src="{% static "assets/images/users/avatar-2.jpg" %}" alt="Generic placeholder image">
+                                                <div class="media-body">
+                                                    <h6 id="username-autor-tarea" class="m-0 font-14"></h6>
+                                                    <small id="email-autor-tarea" class="text-muted"></small>
+                                                </div>
+                                            </div>
+                                            </div>
+
+                                            <br>
+
+                                            <div class="input-group">
+                                                    <input type="text" id="titulo-tarea-editable" class="form-control font-18" placeholder="La última tarea del proyecto" aria-label="La última tarea del proyecto" aria-describedby="basic-addon2">
+                                                    <div class="input-group-append">
+                                                        <button  id="cambiar-nombre" class="btn btn-dark waves-effect waves-light" >Cambiar</button>
+                                                    </div>
+                                                </div>
+
+                                            <row>
+                                                 <div class="media mb-4 mt-1">
+
+                                                </div>
+
+                                                <div id="toolbar">
+                                                    <button id="espera">
+                                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span><span class="sr-only">Loading...</span>
+                                                    </button>
+                                                    <button id="save" class="mdi mdi-content-save"></button>
+                                                    <select class="ql-size">
+                                                        <option value="small"></option>
+                                                        <!-- Note a missing, thus falsy value, is used to reset to default -->
+                                                        <option selected></option>
+                                                        <option value="large"></option>
+                                                        <option value="huge"></option>
+                                                    </select>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-list" value="ordered" type="button"></button>
+                                                    <button class="ql-list" value="bullet" type="button"></button>
+                                                </div>
+
+                                                 <div id="descripcion-tarea" style="height: 300px;">
+
+                                                </div>
+                                                <h6> <a id="actualizar-tarea" href="javascript:void(o)"> Guardar</a> </h6>
+                                            </row>
+
+                                            <hr/>
+                                            <form  method="post" id="boton-imagen-form" enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <input type="file" class="form-control" id="boton-imagen"  style="display: none" >
+                                            </form>
+                                            <div class="row" id="adjuntos">
+                                                <div class="col-sm-2">
+                                                    <a href="#"> <img id="imagen-selector" src="{% static 'assets/images/agregar-nuevo-archivo.png' %}" alt="attachment" title="Agregar nuevo" class="img-thumbnail img-responsive"> </a>
+                                                </div>
+
+
+                                            </div>
+
+                                        </div> <!-- card-box -->
+
+                                        <div class="media mb-0 mt-4">
+                                            <img class="d-flex mr-3 rounded-circle avatar-sm" src="{% static 'assets/images/users/avatar-7.jpg' %}" alt="Generic placeholder image">
+                                            <div class="media-body">
+                                                <div class="mb-2">
+                                                    <div id="nuevo-comentario">
+                                                    </div> <!-- end summernote-->
+
+                                                </div> <!-- end reply-box -->
+                                            </div> <!-- end media-body -->
+                                        </div> <!-- end medi-->
+
+                                        <div class="text-right">
+                                            <button type="button" id="guardar-comentario" class="btn btn-primary btn-rounded width-sm">Comentar</button>
+                                        </div>
+
+                                    <ul class="list-unstyled timeline-sm" id="comentarios">
+
+                                    </ul>
+
+
+                                    <!-- end inbox-rightbar-->
+
+                                    <div class="clearfix"></div>
+                                </div>
+
+
+                            </div> <!-- end Col -->
+
+                        </div><!-- End row -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="clones" class="modal">
+            <li id="task-template" class="task-medium">
+                <div class="checkbox checkbox-blue mb-2 checkbox-single float-right">
+                    <input type="checkbox">
+                    <label></label>
+                </div>
+
+                <h5 class="mt-0">
+                    <a id="detalle" href="javascript:void(0);" class="waves-effect waves-light" data-toggle="modal" data-target=".bs-example-modal-xl">
+                        Escribe algo aquí
+                    </a>
+                </h5>
+
+                <p></p>
+                <div class="clearfix"></div>
+                <div class="row">
+                    <div class="col-auto">
+                        <a href="javascript: void(0);" class="text-muted">
+                            <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="task-user" class="avatar-sm img-thumbnail rounded-circle">
+                        </a>
+                        <a href="javascript: void(0);" class="text-muted">
+                            <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="task-user" class="avatar-sm img-thumbnail rounded-circle">
+                        </a>
+                    </div>
+                    <div class="col">
+                        <div class="text-right">
+                            <p class="font-13 mt-2 mb-0"><i class="mdi mdi-calendar"></i> Programa esta actividad</p>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <div id="adjunto-template" class="col-sm-2">
+                <a href="#"> <img id="imagen" src="" alt="attachment" class="img-thumbnail img-responsive"> </a>
+                <span>hellos</span>
+            </div>
+
+            <a  id="icono-usuario-template" href="javascript: void(0);" class="text-muted">
+                <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="task-user" class="avatar-sm img-thumbnail rounded-circle">
+            </a>
+
+            <li class="timeline-sm-item" id="comentario-template">
+                <span class="timeline-sm-date" id="fecha-comentario">2015 - 19</span>
+                <h5 class="mt-0 mb-1" id="autor-comentario">Lead designer / Developer</h5>
+                <p class="text-muted mt-2" id="texto-comentado-comentario">Everyone realizes why a new common language
+                                                would be desirable: one could refuse to pay expensive translators.
+                                                To achieve this, it would be necessary to have uniform grammar,
+                                                pronunciation and more common words.
+                </p>
+
+            </li>
+
+</div>
+
+
+        {% endblock %}
+
+
+{% block extrajs %}
+    <script src="{% static 'assets/libs/jquery-ui/jquery-ui.min.js' %} "></script>
+    <script src="{% static 'assets/libs/katex/katex.min.js' %}"></script>
+    <script src="{% static  'assets/libs/quill/quill.min.js'%}"></script>
+    <script src="{% static 'assets/libs/jquery-toast/jquery.toast.min.js' %}"></script>
+
+    <script>
+    jQuery(document).ready(function(){
+        let token = '{{csrf_token}}';
+        let idTarea = 0;
+        var tarea=null;
+
+        $(".nueva-tarea").keypress(function (e) {
+            var code = (e.keyCode ? e.keyCode : e.which);
+            let input = $(this);
+            let moverA = input.attr('id').split('-')[1]
+
+            if (code == 13) {
+                 e.preventDefault();
+                let text = input.val();
+
+                $.ajax({
+                    headers: { "X-CSRFToken": token },
+                    type: 'post',
+                    url: 'movimiento',
+                    data:   { nombre: text, descripcion: null, moverA: moverA },
+                    dataType: 'json',
+
+                    success: function (data) {
+                        console.log(data);
+                        input.val("");
+                        let li = $("#task-template");
+                        let linew = li.clone();
+                        linew.attr("id","task-"+data.id);
+                        linew.find('a:first').attr("id","detalle-"+data.id);
+                        linew.find('a:first').text(data.nombre);
+                        $("#"+moverA).append(linew);
+                        $("#"+moverA).sortable('refresh');
+                        return true;
+                    }
+                });
+            }
+        });// Fin enter nueva tarea
+
+         $("#guardar-comentario").click(function (e) {
+
+            let tarea_id = tarea.id
+
+                 e.preventDefault();
+                let text = tarea.descripcion = quillComment.root.innerHTML;
+
+                $.ajax({
+                    headers: { "X-CSRFToken": token },
+                    type: 'post',
+                    url: '{% url 'comentario' %}',
+                    data:   { texto: text, tarea_id: tarea_id },
+                    dataType: 'json',
+
+                    success: function (data) {
+                        console.log(data);
+                        quillComment.setText("");
+                        let ol = $("#comentarios");
+                        let linew = '<li>' + text + '</li>';
+                        ol.append(linew);
+                        return true;
+                    }
+                });
+
+        });// Fin enter nueva tarea
+
+        $('#modal-detalle').on('shown.bs.modal', function (event) {
+            $("#espera").hide();
+            idTarea = $(event.relatedTarget).attr('id');
+            idTarea = idTarea.split('-')[1];
+
+            $.ajax({
+                headers: { "X-CSRFToken": token },
+                type: 'get',
+                url: 'movimiento',
+                data:   { idTarea: idTarea },
+                dataType: 'json',
+
+                success: function (data) {
+                    console.log(data)
+                    quill.setText("");
+                    tarea=data;
+                    $("#titulo-tarea").text("#"+data.id +" "+data.nombre);
+                    $("#texto-prioridad-tarea").html(
+                        '<i class="mdi font-18"></i> '+data.prioridad.descripcion+'\n' +
+                        '<i class="mdi mdi-chevron-down"></i>');
+                    $("#titulo-tarea-editable").val(data.nombre);
+                    $("#imagen-autor-tarea").attr("src",'/'+data.autor.perfil.avatar);
+                    $("#username-autor-tarea").text(data.autor.username);
+                    $("#email-autor-tarea").text(data.autor.email);
+                    $("#fecha-creacion-tarea").text(data.fecha_registro);
+                    quill.root.innerHTML=data.descripcion
+                    let li = $("#comentarios");
+
+                    $.each( data.comentarios, function( key, value ) {
+                        let comentario_clon = $("#comentario-template");
+                        let nuevo = comentario_clon.clone();
+                        //let linew = '<li>' + value.comentario + '</li>';
+                        nuevo.attr("id","comentario-"+value.id);
+                        nuevo.find('#fecha-comentario').text(value.fecha_registro);
+                        nuevo.find('#autor-comentario').text(value.autor.username);
+                        nuevo.find('#texto-comentado-comentario').html(value.comentario);
+                        li.append(nuevo);
+                    });
+
+                     $.each( data.adjuntos, function( key, value ) {
+                        let plantilla = $("#adjunto-template");
+                        let nuevo = plantilla.clone();
+                        nuevo.attr("id","adjunto-"+value.id);
+                        if (value.tipo == 'image/png' || value.tipo == 'image/jpg' || value.tipo == 'image/jpeg' ||  value.tipo == 'image/bmp' || value.tipo == 'image/gif'  )
+                            nuevo.find('img:first').attr("src",'/'+value.archivo);
+                        else
+                            nuevo.find('img:first').attr("src",'{% static 'assets/images/document.png' %}');
+                        $("#adjuntos").append(nuevo);
+
+                    });
+
+
+                }
+            })
+
+        });// Fin mostrar modal
+
+        $("#cambiar-nombre").click(function () {
+            console.log("editando")
+            tarea.nombre = $('#titulo-tarea-editable').val();
+            guardarCambios('nombre',tarea);
+        })
+
+        $("#actualizar-tarea").click(function () {
+            $("#espera").show();
+            tarea.descripcion = quill.root.innerHTML
+            guardarCambios('descripcion',tarea);
+
+        });
+
+        $('.prioridad-tarea').on('click', function(e) {
+            let prioridad = e.target.dataset["value"];
+            tarea.prioridad =prioridad;
+            guardarCambios('prioridad',tarea);
+            $("#texto-prioridad-tarea").html(
+                '<i class="mdi font-18"></i> '+e.target.text+'\n' +
+                '<i class="mdi mdi-chevron-down"></i>');
+        });
+
+        $('.participante-tarea').on('click', function(e) {
+            let dataValue = e.target.dataset["value"];
+            tarea_id =dataValue.split('-')[0];
+            usuario_id =dataValue.split('-')[1];
+             $.ajax({
+                headers: { "X-CSRFToken": token },
+                type: 'post',
+                url: '{% url 'asignacion' %}',
+                data:   {  tarea_id: tarea_id, usuario_id: usuario_id  },
+                dataType: 'json',
+
+                success: function (data) {
+                    if(data.activo == true){
+                        let i = $("#icono-usuario-template");
+                        let nuevo = i.clone();
+                        nuevo.attr("id","asignacion-"+tarea_id+"-"+usuario_id);
+                        nuevo.find('img:first').attr("title",data.usuario.username);
+                        nuevo.find('img:first').attr("src",'/'+data.usuario.perfil.avatar);
+                        elemento_tarea = $("#task-"+tarea_id)
+                        div_participantes = elemento_tarea.find("#seccion-participantes")
+                        div_participantes.append(nuevo)
+
+                    }else {
+                        $("#asignacion-"+tarea_id+"-"+usuario_id).remove();
+                    }
+                }
+            });
+
+        });
+
+        function guardarCambios(campo, tarea) {
+
+            tarea= JSON.stringify(tarea);
+            $.ajax({
+                headers: { "X-CSRFToken": token },
+                type: 'put',
+                url: 'movimiento',
+                data:   {  campo: campo, tarea: tarea  },
+                dataType: 'json',
+
+                success: function (data) {
+                    tarea= data;
+                    $("#espera").hide();
+                }
+            });
+        }
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var tipo = input.files[0].type;
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+
+                    let plantilla = $("#adjunto-template");
+                        let nuevo = plantilla.clone();
+                        nuevo.attr("id","adjunto-"+90);
+                        if (tipo == 'image/png' || tipo == 'image/jpg' || tipo == 'image/jpeg' ||  tipo == 'image/bmp' || tipo == 'image/gif'  )
+                            nuevo.find('img:first').attr("src",e.target.result);
+                        else
+                            nuevo.attr('src', '{% static 'assets/images/document.png' %}');
+                        $("#adjuntos").append(nuevo);
+
+
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#imagen-selector").click(function(){
+            $("#boton-imagen").click();
+        });
+
+        $("#boton-imagen").change(function(){
+
+
+            var myFormData = new FormData();
+            myFormData.append('adjunto', this.files[0]);
+            myFormData.append('tarea_id', tarea.id);
+
+            $.ajax({
+                headers: { "X-CSRFToken": token },
+                url: '{% url 'adjunto'%}',
+                type: 'POST',
+                processData: false, // important
+                contentType: false, // important
+                dataType : 'json',
+                data: myFormData,
+                success : function (data) {
+
+                }
+            });
+              readURL(this);
+
+        });
+
+    }); // Fin carga de Jquery
+
+
+    var quill = new Quill('#descripcion-tarea', {
+        modules: {
+            toolbar: '#toolbar'
+        },
+        placeholder: 'Explica en qué consiste tu tarea',
+        theme: 'snow'
+    });
+
+    var quillComment = new Quill('#nuevo-comentario', {
+        placeholder: 'Deja un comentario para los demás',
+        theme: 'bubble'
+    });
+
+    var botonGuardar = document.querySelector('#save');
+        botonGuardar.addEventListener('click', function() {
+        $("#actualizar-tarea").click();
+    });
+
+    ! function($) {
+	"use strict";
+
+        var KanbanBoard = function() {
+            this.$body = $("body")
+        };
+
+        $("#sinpriorizar, #porhacer, #haciendo, #pruebas, #hecho, #archivado").sortable({
+            connectWith: ".tasklist",
+            placeholder: 'task-placeholder',
+            forcePlaceholderSize: true,
+            update: function (event, ui) {
+
+                var todo = $("#todo").sortable("toArray");
+                var inprogress = $("#inprogress").sortable("toArray");
+                var completed = $("#completed").sortable("toArray");
+                var testing = $("#testing").sortable("toArray");
+
+            },
+            receive: function( event, ui ) {
+                var moverA = event.target.id;
+                var idTarea = ui.item[0].id;
+                idTarea = idTarea.split('-')[1];
+                var token = '{{csrf_token}}';
+
+                 $.ajax({
+                     headers: { "X-CSRFToken": token },
+                     type: 'patch',
+                    url: 'movimiento',
+                    data:   {moverA: moverA, idTarea: idTarea },
+                    dataType: 'json',
+                    success: function (data) {
+                      console.log(data);
+                    }
+                });
+
+
+
+
+
+
+            }
+        }).disableSelection();
+
+
+        //initializing various charts and components
+        KanbanBoard.prototype.init = function() {
+
+        },
+
+        //init KanbanBoard
+        $.KanbanBoard = new KanbanBoard, $.KanbanBoard.Constructor =
+        KanbanBoard
+
+    }(window.jQuery),
+
+    //initializing KanbanBoard
+    function($) {
+        "use strict";
+        $.KanbanBoard.init()
+    }(window.jQuery);
+
+    </script>
+{% endblock %}

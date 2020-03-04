@@ -15,9 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from kanban import views
+from kanban import views as kviews
+from proyectos import views as pviews
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', views.IndexView.as_view(), name='inicio'),
+    path('', pviews.IndexView.as_view(), name='inicio'),
+    path('<int:sprint_id>/kanban/', kviews.KanbanView.as_view(), name='kanban'),
+    path('<int:sprint_id>/kanban/movimiento', kviews.TareaApiView.as_view(), name='movimiento'),
+    path('kanban/tarea/adjunto', kviews.AdjuntosApiView.as_view(), name='adjunto'),
+    path('kanban/tarea/comentario', kviews.ComentariosApiView.as_view(), name='comentario'),
+    path('kanban/tarea/asignacion', kviews.AsignacionApiView.as_view(), name='asignacion'),
+
     path('admin/', admin.site.urls),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

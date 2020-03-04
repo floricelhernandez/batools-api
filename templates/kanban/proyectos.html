@@ -1,0 +1,216 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Minton</a></li>
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Apps</a></li>
+    <li class="breadcrumb-item active">Proyectos</li>
+{% endblock %}
+{% block title %}
+    Proyectos
+{% endblock %}
+
+{% block rows %}
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card-box">
+                            <div class="row">
+                                <div class="col-lg-8">
+
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="text-lg-right mt-3 mt-lg-0">
+                                    <button type="button" class="btn btn-success waves-effect waves-light" data-toggle="modal" data-target="#con-close-modal">Responsive Modal</button>                                    </div>
+                                </div><!-- end col-->
+                            </div> <!-- end row -->
+                        </div> <!-- end card-box -->
+                    </div><!-- end col-->
+                </div>
+                <!-- end row -->    
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card-box">
+                            <div class="text-center">
+                                <h4 class="mb-1">Registra un nuevo proyecto </h4>
+                            </div>
+
+
+                            <form method="post" action="">
+                                 {% csrf_token %}
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="field-3" class="control-label">Proyecto</label>
+                                                        {{ form.nombre }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group no-margin">
+                                                        <label for="field-7" class="control-label">Descripción</label>
+                                                        {{ form.descripcion }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                            <div class="row mt-5 text-center">
+                                <div class="col-6">
+                                    <h5 class="font-weight-normal text-muted"></h5>
+                                    <h3 class="m-b-30"></h3>
+                                </div>
+                                <div class="col-6">
+                                    <button type="submit" class="btn btn-primary waves-effect waves-light btn-lg">Crear proyecto</button>
+                                </div>
+                            </div>
+                                </form>
+
+                            <div id="company-1" class="text-center"></div>
+
+                        </div>
+
+                    </div><!-- end col -->
+
+                    {% for proyecto in proyectos %}
+                        <div class="col-md-4">
+
+                        <div class="card-box">
+                            <div class="text-center">
+                                <img src="{% static "assets/images/companies/airbnb.png" %}" alt="logo" class="avatar-xl rounded-circle mb-3">
+                                <h4 class="mb-1">{{ proyecto.nombre }}</h4>
+                                <p class="text-muted">San Francisco, California</p>
+                            </div>
+
+                            <p class="font-14 text-center text-muted">
+                                {{ proyecto.descripcion }}
+                            </p>
+
+
+                            {% for sprint in proyecto.sprints %}
+
+                            <a href="{% url 'kanban' sprint.id %}">
+                            <div class="col-12">
+
+
+                                <div class="card-box widget-icon" style="background-color: #333; border-color: #333;">
+
+                                    <div class="avatar-lg float-left">
+
+                                        <i class="mdi mdi-crown text-success avatar-title display-4 m-0"></i>
+
+                                    </div>
+                                    <div class="wid-icon-info text-right">
+                                        <p class="text-muted mb-1 font-13 text-uppercase">Sprint {{ sprint.no_sprint }}</p>
+                                        <h4 class="mb-1 counter">{{ sprint.dias_sprint }}</h4>
+                                        <small class="text-info"><b>0%</b></small>
+                                    </div>
+                                </div>
+                            </div>
+                                </a>
+
+                                {% endfor %}
+
+                            <div class="row mt-5 text-center">
+                                <div class="col-6">
+                                    <h5 class="font-weight-normal text-muted">Revenue (USD)</h5>
+                                    <h3 class="m-b-30">260 cr</h3>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="font-weight-normal text-muted">Number of employees</h5>
+                                    <h3 class="m-b-30">3.1k</h3>
+                                </div>
+                            </div>
+
+                            <div id="company-1" class="text-center"></div>
+
+                        </div>
+
+                    </div><!-- end col -->
+                    {% endfor %}
+                </div>
+                <!-- end row -->
+
+
+                <!-- Modal -->
+{% endblock %}
+{% block components %}
+    <div id="con-close-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">Modal Content is Responsive</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="field-3" class="control-label">Proyecto</label>
+                                                        <input type="text" class="form-control" id="field-3" placeholder="Nombra tu proyecto">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group no-margin">
+                                                        <label for="field-7" class="control-label">Descripción</label>
+                                                        <textarea class="form-control" id="field-7" placeholder="Describe elegantemente tu proyecto"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cerrar</button>
+                                            <button type="button" class="btn btn-info waves-effect waves-light">Crear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- /.modal -->
+
+{% endblock %}
+
+
+
+        <!-- ============================================================== -->
+        <!-- End Page content -->
+        <!-- ============================================================== -->
+    
+
+
+
+        <!-- Sparkline charts -->
+        <script src="{% static 'assets/libs/jquery-sparkline/jquery.sparkline.min.js'%}"></script>
+
+        <!-- Modal-Effect -->
+        <script src="{% static 'assets/libs/custombox/custombox.min.js'%}"></script>
+
+        <!-- init js -->
+        <script src=" {% static 'assets/js/pages/companies.js'%}"></script>
+
+{% block extrajs %}
+    <script>
+    $(document).ready(function () {
+
+    // Open in new window
+    $(".sprint").click(function () {
+        var sprintId =$(this).attr('id');
+
+        return false;
+    });
+
+    // Or use this to Open link in same window (similar to target=_blank)
+    $(".box1").click(function(){
+        window.location = $(this).find("a:first").attr("href");
+        return false;
+    });
+
+
+});
+    </script>
+{% endblock %}
