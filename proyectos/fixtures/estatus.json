@@ -1,0 +1,59 @@
+[
+  {
+    "model": "proyectos.Estatus",
+    "pk": 1,
+    "fields": {
+      "descripcion": "Sin priorizar",
+      "clave": "sinpriorizar"
+    }
+  },
+  {
+    "model": "proyectos.Estatus",
+    "pk": 2,
+    "fields": {
+      "descripcion": "Por hacer",
+      "clave": "porhacer"
+    }
+  },
+  {
+    "model": "proyectos.Estatus",
+    "pk": 3,
+    "fields": {
+      "descripcion": "Haciendo",
+      "clave": "haciendo"
+    }
+  },
+  {
+    "model": "proyectos.Estatus",
+    "pk": 4,
+    "fields": {
+      "descripcion": "En pruebas",
+      "clave": "enpruebas"
+    }
+  },
+  {
+    "model": "proyectos.Estatus",
+    "pk": 5,
+    "fields": {
+      "descripcion": "Hecho",
+      "clave": "hecho"
+    }
+  },
+  {
+    "model": "proyectos.Estatus",
+    "pk": 6,
+    "fields": {
+      "descripcion": "Archivado",
+      "clave": "Archivado"
+    }
+  }
+  ,
+  {
+    "model": "proyectos.Estatus",
+    "pk": 7,
+    "fields": {
+      "descripcion": "Eliminado",
+      "clave": "eliminado"
+    }
+  }
+]

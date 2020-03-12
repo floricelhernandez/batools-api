@@ -31,7 +31,7 @@ class ListaKanban (models.Model):
     autor = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def tareas(self):
-        return Tarea.objects.filter(lista_kanban_id=self.id)
+        return Tarea.objects.filter(lista_kanban_id=self.id).order_by('orden')
 
     def __str__(self):
         return self.nombre + " " + self.sprint.proyecto.nombre + "("+str(self.sprint.no_sprint)+")"
@@ -53,8 +53,8 @@ class Tarea (models.Model):
     autor = models.ForeignKey(User, on_delete=models.PROTECT)
     fecha_registro = models.DateField(auto_now_add=True)
 
-    def _str__(self):
-        return self.nombre + " (" + self.lista_kanban.nombre+")"
+    def __str__(self):
+        return str(self.orden) + " (" + self.lista_kanban.nombre+")"
 
     @property
     def adjuntos(self):
@@ -79,7 +79,7 @@ class Asignacion(models.Model):
     def perfil(self):
         return Perfil.objects.get(usuario_id=self.usuario.id)
 
-    def _str__(self):
+    def __str__(self):
         return self.usuario.username + " (" + self.tarea.nombre+")"
 
     class Meta:

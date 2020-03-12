@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 
 class Perfil(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.PROTECT)
+    usuario = models.OneToOneField(User, on_delete=models.PROTECT)
     avatar = models.FileField(blank=True, null=True, upload_to='avatar')
     slack_id = models.TextField(max_length=250, blank=True, null=True)
     recibir_correos = models.BooleanField(default=False)

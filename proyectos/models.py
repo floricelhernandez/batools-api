@@ -51,7 +51,7 @@ class Estatus (models.Model):
     clave = models.TextField(max_length=25)
 
     def __str__(self):
-        return self.descripcionproyectos
+        return self.descripcion
 
     class Meta:
         db_table = "estatus"

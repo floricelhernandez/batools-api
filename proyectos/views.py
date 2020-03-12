@@ -5,23 +5,27 @@ from django import forms
 from django.shortcuts import render
 from kanban.models import *
 from django.db import transaction
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 
 # Create your views here.
 
 
 class ProyectoForm(forms.ModelForm):
-
     nombre = forms.CharField(widget= forms.TextInput
-                           (attrs={'class': 'form-control', "rows": 4}))
+                           (attrs={'class': 'form-control'}))
     descripcion = forms.CharField(widget=forms.Textarea
-                            (attrs={'class': 'form-control'}))
+                            (attrs={'class': 'form-control', "rows": 9}))
 
     class Meta:
         model = Proyecto
         fields = ('nombre', 'descripcion',)
 
 
-class IndexView(generic.View):
+
+class IndexView(LoginRequiredMixin, generic.View):
 
     def get(self, request):
         form = ProyectoForm()

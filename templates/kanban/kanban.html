@@ -44,14 +44,15 @@
 
                                     <h4 class="header-title">{{lista.nombre}}</h4>
                                     <p class="sub-header"></p>
-
+                                    <textarea id="nuevatarea-{{ lista.estatus.clave }}" class="form-control tasklist nueva-tarea" placeholder="Escribe algo interesante, al finalizar, dale Intro"></textarea>
+                                    <p class="sub-header"></p>
                                     <ul class="sortable-list kanbanlist tasklist list-unstyled" id="{{ lista.estatus.clave }}">
 
                                         {% for tarea in lista.tareas %}
                                             <li id="task-{{ tarea.id }}" class="task-medium">
-                                                <div class="checkbox checkbox-blue mb-2 checkbox-single float-right">
-                                                    <input type="checkbox">
-                                                    <label></label>
+                                                <div class="mb-2 float-right">
+
+                                                    <label id="task-id">#{{ tarea.id }}</label>
                                                 </div>
 
                                                 <h5 class="mt-0">
@@ -98,8 +99,7 @@
                                             </li>
                                         {% endfor %}
                                     </ul>
-                                <br>
-                                <textarea id="nuevatarea-{{ lista.estatus.clave }}" class="form-control tasklist nueva-tarea" placeholder="Escribe algo interesante, al finalizar, dale Intro"></textarea>
+
                             </div>
                             </div> <!-- end col -->
                         {% endfor %}
@@ -258,7 +258,7 @@
                                         </div> <!-- card-box -->
 
                                         <div class="media mb-0 mt-4">
-                                            <img class="d-flex mr-3 rounded-circle avatar-sm" src="{% static 'assets/images/users/avatar-7.jpg' %}" alt="Generic placeholder image">
+                                            <img class="d-flex mr-3 rounded-circle avatar-sm" src="/{{ user.perfil.avatar.url }}" alt="Generic placeholder image">
                                             <div class="media-body">
                                                 <div class="mb-2">
                                                     <div id="nuevo-comentario">
@@ -294,9 +294,8 @@
 
         <div id="clones" class="modal">
             <li id="task-template" class="task-medium">
-                <div class="checkbox checkbox-blue mb-2 checkbox-single float-right">
-                    <input type="checkbox">
-                    <label></label>
+                <div class="mb-2  float-right">
+                    <label id="task-id"></label>
                 </div>
 
                 <h5 class="mt-0">
@@ -308,13 +307,20 @@
                 <p></p>
                 <div class="clearfix"></div>
                 <div class="row">
-                    <div class="col-auto">
-                        <a href="javascript: void(0);" class="text-muted">
-                            <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="task-user" class="avatar-sm img-thumbnail rounded-circle">
-                        </a>
-                        <a href="javascript: void(0);" class="text-muted">
-                            <img src="{% static 'assets/images/users/avatar-1.jpg' %}" alt="task-user" class="avatar-sm img-thumbnail rounded-circle">
-                        </a>
+                    <div class="col-auto" id="seccion-participantes">
+
+                        <div class="btn-group">
+                            <button type="button" id="seleccion-usuario-tarea" class="btn btn-sm  btn-outline-info dropdown-toggle waves-effect" data-toggle="dropdown" aria-expanded="false">
+                                <i class="mdi font-18"></i>
+                                <i class="mdi mdi-account"></i>
+                            </button>
+                            <div class="dropdown-menu" id="opciones-usuarios-participantes" >
+                                <span class="dropdown-header">Asignar esta tarea :</span>
+
+                            </div>
+
+                                                        </div>
+
                     </div>
                     <div class="col">
                         <div class="text-right">
@@ -343,6 +349,8 @@
                 </p>
 
             </li>
+            <a id="opcion-participante-en-lista" class="dropdown-item participante-tarea" data-value="0-0" href="javascript: void(0);">Equipo</a>
+
 
 </div>
 
@@ -362,6 +370,7 @@
         let idTarea = 0;
         var tarea=null;
 
+
         $(".nueva-tarea").keypress(function (e) {
             var code = (e.keyCode ? e.keyCode : e.which);
             let input = $(this);
@@ -379,14 +388,37 @@
                     dataType: 'json',
 
                     success: function (data) {
-                        console.log(data);
+                        let id_nueva_tarea;
                         input.val("");
                         let li = $("#task-template");
                         let linew = li.clone();
                         linew.attr("id","task-"+data.id);
                         linew.find('a:first').attr("id","detalle-"+data.id);
                         linew.find('a:first').text(data.nombre);
-                        $("#"+moverA).append(linew);
+                        linew.find('#task-id').text('#'+data.id);
+                        id_nueva_tarea = data.id;
+                        $.ajax({
+                            type: 'get',
+                            url: '{% url 'equipo' %}',
+                            data:   { proyecto_id: 1 },
+                            dataType: 'json',
+
+                            success: function (data) {
+                              div_sel_part=  linew.find('#opciones-usuarios-participantes');
+
+                               $.each( data, function( key, value ) {
+                                   console.log(value.usuario);
+                                   console.log(id_nueva_tarea);
+                                   let ap = $('#opcion-participante-en-lista').clone(true);
+                                   ap.attr("id","asignacionlista-"+id_nueva_tarea+'-'+value.usuario.perfil.usuario);
+                                   ap.attr("data-value",id_nueva_tarea+'-'+value.usuario.perfil.usuario)
+                                   ap.text(value.usuario.username)
+                                    div_sel_part.append(ap);
+                               });
+                            }
+                        });
+
+                        $("#"+moverA).prepend(linew);
                         $("#"+moverA).sortable('refresh');
                         return true;
                     }
@@ -481,12 +513,14 @@
             console.log("editando")
             tarea.nombre = $('#titulo-tarea-editable').val();
             guardarCambios('nombre',tarea);
+            $("#task-"+tarea.id).find("#detalle-"+tarea.id).text(tarea.nombre);
         })
 
         $("#actualizar-tarea").click(function () {
             $("#espera").show();
             tarea.descripcion = quill.root.innerHTML
             guardarCambios('descripcion',tarea);
+
 
         });
 
@@ -498,6 +532,8 @@
                 '<i class="mdi font-18"></i> '+e.target.text+'\n' +
                 '<i class="mdi mdi-chevron-down"></i>');
         });
+
+
 
         $('.participante-tarea').on('click', function(e) {
             let dataValue = e.target.dataset["value"];

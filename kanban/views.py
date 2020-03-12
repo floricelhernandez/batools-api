@@ -58,6 +58,14 @@ class AsignacionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class EquipoSerializer(serializers.ModelSerializer):
+    usuario = AutorSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Equipo
+        fields = ['usuario']
+
+
 class TareaSerializer(serializers.ModelSerializer):
     autor = AutorSerializer(many=False, read_only=True)
     prioridad = PrioridadSerializer(many=False, read_only=True)
@@ -108,7 +116,16 @@ class TareaApiView(APIView):
         tarea = Tarea()
         tarea.nombre =nombre
         tarea.lista_kanban= lista_kanban
+        tarea.orden =1
         tarea.autor = self.request.user
+        tarea.prioridad = Prioridad.objects.get(clave='ninguno')
+        tareas = Tarea.objects.filter(lista_kanban_id=lista_kanban.id).order_by('orden')
+        orden = 2
+        for t in tareas:
+            t.orden= orden
+            orden= orden+1
+            t.save()
+
 
         try:
             proyecto = Proyecto.objects.get(id=lista_kanban.sprint.proyecto.id)
@@ -129,10 +146,10 @@ class TareaApiView(APIView):
         if tarea_json['prioridad'] is None:
             tarea.prioridad=None
         else:
-            tarea.prioridad = Prioridad.objects.get(id=tarea_json['prioridad'])
+            tarea.prioridad = Prioridad.objects.get(id=tarea_json['prioridad']['id'])
         tarea.nombre = tarea_json['nombre']
         tarea.descripcion = tarea_json['descripcion']
-        tarea.prioridad = Prioridad.objects.get(id=tarea_json['prioridad'])
+        tarea.prioridad = Prioridad.objects.get(id=tarea_json['prioridad']['id'])
         tarea.save()
         data = {
             'pk': "ok",
@@ -216,6 +233,16 @@ class AsignacionApiView(APIView):
 
         serializer = AsignacionSerializer(asignacion)
         return Response(serializer.data)
+
+
+class EquipoApiView(APIView):
+
+    def get(self, request):
+        proyecto_id = request.GET['proyecto_id']
+        equipo = Equipo.objects.filter(proyecto_id=proyecto_id)
+        serializer = EquipoSerializer(equipo, many=True)
+        return Response(serializer.data)
+
 
 
 

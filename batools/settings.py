@@ -25,6 +25,9 @@ SECRET_KEY = 'p0%utu$xiofyv-tmmmg$h+*wrmk#o1b%a_b0dt7e*935ht#-vx'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+#LOGIN_URL = 'usuarios/login/'
+LOGIN_REDIRECT_URL = '/'
+
 ALLOWED_HOSTS = []
 
 
@@ -37,7 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites', # new
     'rest_framework',
+    'allauth',  # new
+    'allauth.account',  # new
+    'allauth.socialaccount',  # new
     'slack',
     'kanban',
     'proyectos',
@@ -127,8 +134,33 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, '/static/'),
-    '/home/pechel/Dev/Dev/python/batools/templates/static',
+    'C:\Dev\python/batools/templates/static',
 ]
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = 'media/'
+
+# emaillogin_project/settings.py
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+SITE_ID = 1
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = False
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_UNIQUE_EMAIL = True
+
+ACCOUNT_FORMS = {
+'login': 'usuarios.views.CustomLoginForm',
+'signup': 'usuarios.views.CustomSignupForm',
+}
 

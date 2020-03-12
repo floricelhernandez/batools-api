@@ -17,16 +17,22 @@ from django.contrib import admin
 from django.urls import path
 from kanban import views as kviews
 from proyectos import views as pviews
+from usuarios import views as uviews
+from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import include
 
 urlpatterns = [
     path('', pviews.IndexView.as_view(), name='inicio'),
+    #path('usuarios/login/', auth_views.LoginView.as_view(template_name='usuarios/pages-login.html'), name='login'),
+    path('accounts/', include('allauth.urls')), # new
     path('<int:sprint_id>/kanban/', kviews.KanbanView.as_view(), name='kanban'),
     path('<int:sprint_id>/kanban/movimiento', kviews.TareaApiView.as_view(), name='movimiento'),
     path('kanban/tarea/adjunto', kviews.AdjuntosApiView.as_view(), name='adjunto'),
     path('kanban/tarea/comentario', kviews.ComentariosApiView.as_view(), name='comentario'),
     path('kanban/tarea/asignacion', kviews.AsignacionApiView.as_view(), name='asignacion'),
+    path('proyecto/equipo', kviews.EquipoApiView.as_view(), name='equipo'),
 
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,38 @@
+[
+  {
+    "model": "proyectos.Rol",
+    "pk": 1,
+    "fields": {
+      "descripcion": "Administrador",
+      "clave": "administrador",
+      "rol_del_sistema": "True"
+    }
+  },
+   {
+    "model": "proyectos.Rol",
+    "pk": 2,
+    "fields": {
+      "descripcion": "Desarrollador",
+      "clave": "desarrollador",
+      "rol_del_sistema": "True"
+    }
+  },
+   {
+    "model": "proyectos.Rol",
+    "pk": 3,
+    "fields": {
+      "descripcion": "Negocio",
+      "clave": "negocio",
+      "rol_del_sistema": "True"
+    }
+  },
+   {
+    "model": "proyectos.Rol",
+    "pk": 4,
+    "fields": {
+      "descripcion": "Usuario",
+      "clave": "usuario",
+      "rol_del_sistema": "True"
+    }
+  }
+]

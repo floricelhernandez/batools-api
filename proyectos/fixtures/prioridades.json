@@ -1,0 +1,46 @@
+[
+  {
+    "model": "kanban.Prioridad",
+    "pk": 1,
+    "fields": {
+      "nombre": "Sin prioridad",
+      "descripcion": "Sin prioridad",
+      "clave": "ninguno",
+      "orden": 1,
+      "autor": 1
+    }
+  },
+   {
+    "model": "kanban.Prioridad",
+    "pk": 2,
+    "fields": {
+      "nombre": "Alta",
+      "descripcion": "Alta",
+      "clave": "alta",
+      "orden": 2,
+      "autor": 1
+    }
+  },
+   {
+    "model": "kanban.Prioridad",
+    "pk": 3,
+    "fields": {
+      "nombre": "Media",
+      "descripcion": "Media",
+      "clave": "media",
+      "orden": 3,
+      "autor": 1
+    }
+  },
+   {
+    "model": "kanban.Prioridad",
+    "pk": 4,
+    "fields": {
+      "nombre": "Baja",
+      "descripcion": "Baja",
+      "clave": "baja",
+      "orden": 4,
+      "autor": 1
+    }
+  }
+]
