@@ -1,0 +1,173 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block extracss %}
+    <link href="{% static 'assets/libs/datatables/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables/responsive.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <style>
+    .truncate {
+        max-width:250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+}
+    </style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Batools</a></li>
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Apps</a></li>
+    <li class="breadcrumb-item active">Tickets</li>
+{% endblock %}
+{% block title %}
+    Tickets
+{% endblock %}
+
+{% block rows %}
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card-box">
+
+                            <div class="text-center mb-2">
+                                <div class="row">
+                                    <div class="col-md-6 col-xl-3">
+                                        <div class="card-box bg-info text-white">
+                                            <i class="fe-tag font-24"></i>
+                                            <h3 class="text-white">25563</h3>
+                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Total tickets</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xl-3">
+                                        <div class="card-box bg-warning text-white">
+                                            <i class="fe-archive font-24"></i>
+                                            <h3 class="text-white">6952</h3>
+                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Pending Tickets</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xl-3">
+                                        <div class="card-box bg-success text-white">
+                                            <i class="fe-shield font-24"></i>
+                                            <h3 class="text-white">18361</h3>
+                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Closed Tickets</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-xl-3">
+                                        <div class="card-box bg-danger text-white">
+                                            <i class="fe-delete font-24"></i>
+                                            <h3 class="text-white">250</h3>
+                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Deleted Tickets</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" cellspacing="0" id="tickets-table">
+                                <thead class="bg-light">
+                                <tr>
+                                    <th class="font-weight-medium">ID</th>
+                                    <th class="font-weight-medium">Creado por</th>
+                                    <th class="font-weight-medium">Título</th>
+                                    <th class="font-weight-medium">Asignado a</th>
+                                    <th class="font-weight-medium">Prioridad</th>
+                                    <th class="font-weight-medium">Estatus</th>
+                                    <th class="font-weight-medium">Fecha de registro</th>
+                                    <th class="font-weight-medium">Fecha de vencimiento</th>
+                                    <th class="font-weight-medium">Opciones</th>
+                                </tr>
+                                </thead>
+
+                                <tbody class="font-14">
+                                {% for t in tickets %}
+                                    <tr>
+                                        <td><b>#{{ t.id }}</b></td>
+                                        <td style="white-space: nowrap; overflow: hidden;">
+                                            <a href="javascript: void(0);" class="text-dark">
+                                                <span >{{ t.autor.username }}</span>
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            {{ t.nombre }}
+                                        </td>
+
+                                        <td>
+                                             {% for a in t.asignaciones %}
+                                            <a href="javascript: void(0);">
+
+                                                <img src="/{{ a.usuario.perfil.avatar.url }}" alt="{{ a.usuario }}" title="{{ a.usuario }}" class="avatar-sm rounded-circle img-thumbnail" />
+                                            </a>
+                                            {% endfor %}
+                                        </td>
+
+                                        <td>
+                                            <span class="badge badge-secondary">{{ t.prioridad.descripcion }}</span>
+                                        </td>
+
+                                        <td>
+                                            <span class="badge badge-success">Open</span>
+                                        </td>
+
+                                        <td>
+                                            {{ t.fecha_registro }}
+                                        </td>
+
+                                        <td>
+                                            2017/04/28
+                                        </td>
+
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="dropdown-toggle arrow-none btn btn-light btn-sm" data-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-pencil mr-2 text-muted font-18 vertical-middle"></i>Edit Ticket</a>
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-check-all mr-2 text-muted font-18 vertical-middle"></i>Close</a>
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-delete mr-2 text-muted font-18 vertical-middle"></i>Remove</a>
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-star mr-2 font-18 text-muted vertical-middle"></i>Mark as Unread</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div><!-- end col -->
+                </div>
+                <!-- end row -->
+
+{% endblock %}
+
+{% block extrajs %}
+    <script src="{% static 'assets/libs/datatables/jquery.dataTables.min.js' %}"></script>
+        <script src=" {% static 'assets/libs/datatables/dataTables.bootstrap4.js' %}"></script>
+        <script src="{% static 'assets/libs/datatables/responsive.bootstrap4.min.js' %}"></script>
+
+    <script>
+
+    $(document).ready(function () {
+    $('#tickets-table').DataTable({
+
+        columnDefs:[{targets:2,className:"truncate"}],
+        createdRow: function(row){
+        var td = $(row).find(".truncate");
+        td.attr("title", td.html());
+        },
+
+        "language": {
+            "paginate": {
+                "previous": "<i class='mdi mdi-chevron-left'>",
+                "next": "<i class='mdi mdi-chevron-right'>"
+            }
+        },
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+});
+    </script>
+
+{% endblock %}

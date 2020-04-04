@@ -41,8 +41,10 @@ class ListaKanban (models.Model):
 
 
 class Tarea (models.Model):
-    lista_kanban = models.ForeignKey(ListaKanban, on_delete=models.PROTECT)
+    lista_kanban = models.ForeignKey(ListaKanban, on_delete=models.PROTECT, blank=True, null=True)
+    proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
     prioridad = models.ForeignKey(Prioridad, on_delete=models.PROTECT, blank=True, null=True)
+    estatus = models.ForeignKey(Estatus, on_delete=models.PROTECT, default=1)
     orden = models.PositiveSmallIntegerField(default=1)
     no_tarea = models.IntegerField(default=1)
     nombre = models.TextField(max_length=150)

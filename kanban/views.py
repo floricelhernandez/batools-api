@@ -114,13 +114,15 @@ class TareaApiView(APIView):
         descripcion = request.POST['descripcion']
         lista_kanban = ListaKanban.objects.get(estatus__clave=mover_a, sprint_id=sprint_id)
         tarea = Tarea()
-        tarea.nombre =nombre
+        tarea.nombre = nombre
         tarea.lista_kanban= lista_kanban
+        tarea.proyecto=tarea.lista_kanban.sprint.proyecto
         tarea.orden =1
         tarea.autor = self.request.user
         tarea.prioridad = Prioridad.objects.get(clave='ninguno')
         tareas = Tarea.objects.filter(lista_kanban_id=lista_kanban.id).order_by('orden')
         orden = 2
+
         for t in tareas:
             t.orden= orden
             orden= orden+1
@@ -143,13 +145,12 @@ class TareaApiView(APIView):
     def put(self, request, sprint_id):
         tarea_json = json.loads(request.POST['tarea'])
         tarea= Tarea.objects.get(id=tarea_json['id'])
-        if tarea_json['prioridad'] is None:
-            tarea.prioridad=None
-        else:
+        try:
+            tarea.prioridad = Prioridad.objects.get(id=tarea_json['prioridad'][0])
+        except:
             tarea.prioridad = Prioridad.objects.get(id=tarea_json['prioridad']['id'])
         tarea.nombre = tarea_json['nombre']
         tarea.descripcion = tarea_json['descripcion']
-        tarea.prioridad = Prioridad.objects.get(id=tarea_json['prioridad']['id'])
         tarea.save()
         data = {
             'pk': "ok",

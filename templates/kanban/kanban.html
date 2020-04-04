@@ -187,7 +187,7 @@
                                             </button>
                                             <div class="dropdown-menu" >
                                                 <span class="dropdown-header">Cambiar la prioridad :</span>
-                                                <a class="dropdown-item prioridad-tarea" href="javascript: void(0);">Sin prioridad</a>
+
                                                 {% for prioridad in prioridades %}
                                                  <a class="dropdown-item prioridad-tarea" data-value="{{ prioridad.id }}" href="javascript: void(0);">{{ prioridad.descripcion }}</a>
                                                 {% endfor %}

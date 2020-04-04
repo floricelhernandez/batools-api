@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'slack',
     'kanban',
     'proyectos',
-    'usuarios'
+    'usuarios',
+    'tickets'
 
 ]
 
