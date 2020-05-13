@@ -8,6 +8,9 @@ from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.contrib import messages
+from django.db import IntegrityError
+
 
 
 # Create your views here.
@@ -18,10 +21,20 @@ class ProyectoForm(forms.ModelForm):
                            (attrs={'class': 'form-control'}))
     descripcion = forms.CharField(widget=forms.Textarea
                             (attrs={'class': 'form-control', "rows": 9}))
-
     class Meta:
         model = Proyecto
         fields = ('nombre', 'descripcion',)
+
+
+class EquipoForm(forms.ModelForm):
+
+    class Meta:
+        model = Equipo
+        fields = ('usuario', 'rol',)
+        widgets = {
+            'usuario': forms.Select(attrs={'class': 'form-control'}),
+            'rol': forms.Select(attrs={'class': 'form-control'}),
+        }
 
 
 
@@ -70,18 +83,40 @@ class IndexView(LoginRequiredMixin, generic.View):
         lista_haciendo.autor = self.request.user
         lista_haciendo.save()
 
+        lista_pruebas = ListaKanban()
+        lista_pruebas.sprint = sprint
+        lista_pruebas.nombre = "Pruebas"
+        lista_pruebas.estatus = Estatus.objects.get(clave='enpruebas')
+        lista_pruebas.orden = 3
+        lista_pruebas.autor = self.request.user
+        lista_pruebas.save()
+
         lista_hecho = ListaKanban()
         lista_hecho.sprint = sprint
         lista_hecho.nombre = "Hecho"
         lista_hecho.estatus = Estatus.objects.get(clave='hecho')
-        lista_haciendo.orden = 3
+        lista_hecho.orden = 3
         lista_hecho.autor = self.request.user
         lista_hecho.save()
 
         return render(request, 'kanban/proyectos.html', {'form': form, 'proyectos': proyectos})
 
 
-class ProyectoView(generic.View):
+class EquipoView(generic.View):
+    def get(self, request, proyecto_id):
+        form = EquipoForm()
+        equipo = Equipo.objects.filter(proyecto_id=proyecto_id)
+        return render(request, 'proyectos/equipo.html', {'equipo': equipo, 'form':form})
 
-    def post(self):
-        pass
+    def post(self, request, proyecto_id):
+        equipo = EquipoForm(request.POST)
+        equipo.instance.usuario_registra = self.request.user
+        equipo.instance.proyecto = Proyecto.objects.get(id=proyecto_id)
+        try:
+            equipo.save()
+        except IntegrityError as ex:
+            messages.add_message(request, messages.ERROR, "Parece ser que el usuario que elegiste ya está en este proyecto.")
+
+        form = EquipoForm()
+        integrantes_equipo = Equipo.objects.filter(proyecto_id=proyecto_id)
+        return render(request, 'proyectos/equipo.html', {'equipo': integrantes_equipo, 'form': form})

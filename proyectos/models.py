@@ -44,6 +44,7 @@ class Equipo(models.Model):
 
     class Meta:
         db_table = "proyectos_equipos"
+        unique_together = ('proyecto', 'usuario')
 
 
 class Estatus (models.Model):

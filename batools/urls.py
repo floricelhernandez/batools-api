@@ -36,5 +36,8 @@ urlpatterns = [
     # Ticktes
     path('tickets/', tviews.TicketsView.as_view(), name='tickets'),
 
+    # Equipo
+    path('proyecto/<int:proyecto_id>/equipo/', pviews.EquipoView.as_view(), name='ver-equipo'),
+
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

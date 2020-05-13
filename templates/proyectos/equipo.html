@@ -1,0 +1,188 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block extracss %}
+    <link href="{% static 'assets/libs/datatables/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables/responsive.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <style>
+    .truncate {
+        max-width:250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+}
+    </style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Batools</a></li>
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Apps</a></li>
+    <li class="breadcrumb-item active">Equipo</li>
+{% endblock %}
+{% block title %}
+    Equipo
+{% endblock %}
+
+{% block rows %}
+
+                <div class="row">
+
+                    <div class="col-12">
+                        <div class="card-box">
+
+                            <div class="text-center mb-2">
+                                <div class="row">
+
+                                    <div class="col-md-12">
+                        <div class="card-box">
+                            <div class="text-center">
+                                <h4 class="mb-1">Agregar un usuario de la organización a tu proyecto </h4>
+                            </div>
+
+                            {% if messages %}
+                                <ul class="messages">
+                                     {% for message in messages %}
+
+                                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                            {{ message | safe }}
+                                        </div>
+                                         {% endfor %}
+                                </ul>
+                            {% endif %}
+                            <form method="post" action="">
+                                 {% csrf_token %}
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="field-3" class="control-label">Usuario</label>
+                                                        {{ form.usuario }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group no-margin">
+                                                        <label for="field-7" class="control-label">Rol</label>
+                                                        {{ form.rol }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                            <div class="row mt-5 text-center">
+                                <div class="col-6">
+                                    <h5 class="font-weight-normal text-muted"></h5>
+                                    <h3 class="m-b-30"></h3>
+                                </div>
+                                <div class="col-6">
+                                    <button type="submit" class="btn btn-primary waves-effect waves-light btn-lg">Agregar al equipo</button>
+                                </div>
+                            </div>
+                                </form>
+
+                            <div id="company-1" class="text-center"></div>
+
+                        </div>
+
+                    </div><!-- end col -->
+
+
+                                </div>
+                            </div>
+
+
+                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" cellspacing="0" id="tickets-table">
+                                <thead class="bg-light">
+                                <tr>
+                                    <th class="font-weight-medium">Avatar</th>
+                                    <th class="font-weight-medium">Usuario</th>
+                                    <th class="font-weight-medium">E-mail</th>
+                                    <th class="font-weight-medium">Rol</th>
+                                    <th class="font-weight-medium">Opciones</th>
+                                </tr>
+                                </thead>
+
+                                <tbody class="font-14">
+                                {% for e in equipo %}
+                                    <tr>
+                                        <td> <a href="javascript: void(0);">
+
+                                                <img src="/{{ e.usuario.perfil.avatar.url }}" alt="{{ e.usuario }}" title="{{ e.usuario }}" class="avatar-sm rounded-circle img-thumbnail" />
+                                            </a>
+                                        </td>
+                                        <td style="white-space: nowrap; overflow: hidden;">
+                                            <a href="javascript: void(0);" class="text-dark">
+                                                <span >{{ e.usuario }}</span>
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            {{ e.usuario.email }}
+                                        </td>
+
+
+                                        <td>
+                                            <span class="badge badge-secondary">{{ e.rol }}</span>
+                                        </td>
+
+
+
+
+                                        <td>
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="dropdown-toggle arrow-none btn btn-light btn-sm" data-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-check-all mr-2 text-muted font-18 vertical-middle"></i>Hacerla administradora</a>
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-delete mr-2 text-muted font-18 vertical-middle"></i>Quitar del equipo</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div><!-- end col -->
+                </div>
+                <!-- end row -->
+
+{% endblock %}
+
+{% block extrajs %}
+    <script src="{% static 'assets/libs/datatables/jquery.dataTables.min.js' %}"></script>
+        <script src=" {% static 'assets/libs/datatables/dataTables.bootstrap4.js' %}"></script>
+        <script src="{% static 'assets/libs/datatables/responsive.bootstrap4.min.js' %}"></script>
+
+    <script>
+
+    $(document).ready(function () {
+    $('#tickets-table').DataTable({
+
+        columnDefs:[{targets:2,className:"truncate"}],
+        createdRow: function(row){
+        var td = $(row).find(".truncate");
+        td.attr("title", td.html());
+        },
+
+        "language": {
+            "paginate": {
+                "previous": "<i class='mdi mdi-chevron-left'>",
+                "next": "<i class='mdi mdi-chevron-right'>"
+            }
+        },
+        "drawCallback": function () {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+});
+    </script>
+
+{% endblock %}

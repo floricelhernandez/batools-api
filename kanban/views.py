@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import serializers
 import json
 import slack
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 # Serializadores.
 
@@ -85,7 +87,7 @@ class TareaSerializer(serializers.ModelSerializer):
 # Vistas
 
 
-class KanbanView(generic.ListView):
+class KanbanView(LoginRequiredMixin, generic.ListView):
     template_name = 'kanban/kanban.html'
     context_object_name = 'listas'
 
