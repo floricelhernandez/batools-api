@@ -129,18 +129,18 @@ class TareaApiView(APIView):
             t.orden= orden
             orden= orden+1
             t.save()
-
+        tarea.save()
 
         try:
             proyecto = Proyecto.objects.get(id=lista_kanban.sprint.proyecto.id)
             client = slack.WebClient(token=proyecto.slack_bot_token)
             client.chat_postMessage(
-                channel="UUQCX554G",
-                text="NUEVO: "+tarea.nombre+"! :tada:"
+                channel=proyecto.slack_channel_id,
+                text="#" + str(tarea.id) + ' '+tarea.nombre
             )
-        except:
-            pass
-        tarea.save()
+        except Exception as ex:
+            print(ex)
+
         serializer = TareaSerializer(tarea)
         return Response(serializer.data)
 
