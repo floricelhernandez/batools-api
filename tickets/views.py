@@ -1,10 +1,11 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.views import generic
 from kanban.models import *
 
 
 # Create your views here.
-class TicketsView(generic.ListView):
+class TicketsView(LoginRequiredMixin,generic.ListView):
     template_name = 'ticktes/tickets.html'
     context_object_name = 'tickets'
 

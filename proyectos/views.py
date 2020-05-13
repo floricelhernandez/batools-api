@@ -11,8 +11,6 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.db import IntegrityError
 
-
-
 # Create your views here.
 
 
@@ -27,7 +25,6 @@ class ProyectoForm(forms.ModelForm):
 
 
 class EquipoForm(forms.ModelForm):
-
     class Meta:
         model = Equipo
         fields = ('usuario', 'rol',)
@@ -37,13 +34,12 @@ class EquipoForm(forms.ModelForm):
         }
 
 
-
 class IndexView(LoginRequiredMixin, generic.View):
 
     def get(self, request):
         form = ProyectoForm()
-        proyectos = Proyecto.objects.order_by('nombre')
-        return render(request, 'kanban/proyectos.html', {'form': form, 'proyectos': proyectos})
+        equipos = Equipo.objects.filter(usuario=self.request.user)
+        return render(request, 'kanban/proyectos.html', {'form': form, 'proyectos': equipos})
 
     @transaction.atomic()
     def post(self, request):
@@ -51,7 +47,6 @@ class IndexView(LoginRequiredMixin, generic.View):
         proyecto.instance.autor = self.request.user
         proyecto.save()
         form = ProyectoForm()
-        proyectos = Proyecto.objects.order_by('nombre')
 
         equipo = Equipo()
         equipo.proyecto = proyecto.instance
@@ -99,10 +94,11 @@ class IndexView(LoginRequiredMixin, generic.View):
         lista_hecho.autor = self.request.user
         lista_hecho.save()
 
-        return render(request, 'kanban/proyectos.html', {'form': form, 'proyectos': proyectos})
+        equipos = Equipo.objects.filter(usuario=self.request.user)
+        return render(request, 'kanban/proyectos.html', {'form': form, 'proyectos': equipos})
 
 
-class EquipoView(generic.View):
+class EquipoView(LoginRequiredMixin,generic.View):
     def get(self, request, proyecto_id):
         form = EquipoForm()
         equipo = Equipo.objects.filter(proyecto_id=proyecto_id)
