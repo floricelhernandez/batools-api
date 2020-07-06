@@ -25,19 +25,32 @@ from django.conf.urls.static import static
 from django.urls import include
 
 urlpatterns = [
+
+    # Proyectos
     path('', pviews.IndexView.as_view(), name='inicio'),
+    path('proyecto/<int:proyecto_id>/configuracion/', pviews.ConfiguracionProyectoView.as_view(), name='proyecto-configuracion'),
+    path('proyecto/<int:proyecto_id>/', pviews.ProyectoView.as_view(), name='proyecto'),
+    path('proyecto/<int:proyecto_id>/equipo/', pviews.EquipoProyectoApiView.as_view(), name='proyecto-equipo'),
+    path('proyecto/equipo', pviews.EquipoProyectoApiView.as_view(), name='equipo'),
+
+
+    # Usuarios y autenticación
     path('accounts/', include('allauth.urls')), # new
-    path('<int:sprint_id>/kanban/', kviews.KanbanView.as_view(), name='kanban'),
+
+
+    #Kanban
+    path('<int:sprint_id>/kanban/', kviews.KanbanView.as_view(), name='app-kanban'),
     path('<int:sprint_id>/kanban/movimiento', kviews.TareaApiView.as_view(), name='movimiento'),
     path('kanban/tarea/adjunto', kviews.AdjuntosApiView.as_view(), name='adjunto'),
     path('kanban/tarea/comentario', kviews.ComentariosApiView.as_view(), name='comentario'),
     path('kanban/tarea/asignacion', kviews.AsignacionApiView.as_view(), name='asignacion'),
-    path('proyecto/equipo', kviews.EquipoApiView.as_view(), name='equipo'),
+
     # Ticktes
-    path('tickets/', tviews.TicketsView.as_view(), name='tickets'),
+    path('tickets/', tviews.TicketsView.as_view(), name='app-tickets'),
+    path('tickets/api', tviews.TicketApiView.as_view(), name='tickets'),
 
     # Equipo
-    path('proyecto/<int:proyecto_id>/equipo/', pviews.EquipoView.as_view(), name='ver-equipo'),
+
 
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

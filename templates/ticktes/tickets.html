@@ -3,8 +3,11 @@
 {% load static %}
 
 {% block extracss %}
-    <link href="{% static 'assets/libs/datatables/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
-    <link href="{% static 'assets/libs/datatables/responsive.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/footable/footable.core.min.css'%}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/quill/quill.core.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{% static 'assets/libs/quill/quill.bubble.css' %}" rel="stylesheet" type="text/css" />
+        <link href="{%  static 'assets/libs/quill/quill.snow.css'%}" rel="stylesheet" type="text/css" />
+     <link href="{% static 'assets/libs/jquery-toast/jquery.toast.min.css' %}" rel="stylesheet" type="text/css" />
     <style>
     .truncate {
         max-width:250px;
@@ -27,7 +30,7 @@
 
 {% block rows %}
 
-                <div class="row">
+    <div class="row">
                     <div class="col-12">
                         <div class="card-box">
 
@@ -36,137 +39,542 @@
                                     <div class="col-md-6 col-xl-3">
                                         <div class="card-box bg-info text-white">
                                             <i class="fe-tag font-24"></i>
-                                            <h3 class="text-white">25563</h3>
+                                            <h3 class="text-white">{{total_tickets}}</h3>
                                             <p class="text-uppercase mb-1 font-13 font-weight-bold">Total tickets</p>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-xl-3">
                                         <div class="card-box bg-warning text-white">
                                             <i class="fe-archive font-24"></i>
-                                            <h3 class="text-white">6952</h3>
-                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Pending Tickets</p>
+                                            <h3 class="text-white">{{tickets_pendientes}}</h3>
+                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Tickets pendientes</p>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-xl-3">
                                         <div class="card-box bg-success text-white">
                                             <i class="fe-shield font-24"></i>
-                                            <h3 class="text-white">18361</h3>
-                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Closed Tickets</p>
+                                            <h3 class="text-white">{{tickets_cerrados}}</h3>
+                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Tickets cerrados</p>
                                         </div>
                                     </div>
                                     <div class="col-md-6 col-xl-3">
                                         <div class="card-box bg-danger text-white">
                                             <i class="fe-delete font-24"></i>
-                                            <h3 class="text-white">250</h3>
-                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Deleted Tickets</p>
+                                            <h3 class="text-white">{{tickets_archivados}}</h3>
+                                            <p class="text-uppercase mb-1 font-13 font-weight-bold">Tickets </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- end col -->
+                </div>
+
+    <div class="row">
+                    <div class="col-12">
+                        <div class="card-box">
+                            <h4 class="header-title">Tickets</h4>
+                            <p class="sub-header">
+                                Revisa el progreso de tus tickets, gestiona o envía al kanban del proyecto.
+                            </p>
+
+                            <div class="mb-2">
+                                <div class="row">
+                                    <div class="col-12 text-sm-center form-inline">
+                                    <div class="form-group mr-2">
+                                        <button type="button" class="btn btn-primary waves-effect waves-light" data-toggle="modal" data-target=".bs-example-modal-xl">Crear un nuevo ticket</button>
+
+                                        </div>
+                                        <div class="form-group mr-2">
+                                            <select id="filter-proyecto" class="custom-select custom-select-sm">
+                                                <option value="">Todos los proyectos</option>
+
+                                               {% for e in equipos %}
+                                                    <option value="{{e.proyecto.nombre}}">{{e.proyecto.nombre}}</option>
+                                               {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group mr-2">
+                                            <select id="filter-status" class="custom-select custom-select-sm">
+                                                <option value="">Todos los estatus</option>
+                                               {% for s in status %}
+                                                    <option value="{{s.descripcion}}">{{s.descripcion}}</option>
+                                               {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group mr-2">
+                                            <select id="filter-prioridades" class="custom-select custom-select-sm">
+                                                <option value="">Todas los prioridades</option>
+                                               {% for p in prioridades %}
+                                                    <option value="{{p.nombre}}">{{p.nombre}}</option>
+                                               {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group mr-2">
+                                            <input id="search_numero" type="text" placeholder="Número de ticket" class="form-control form-control-sm" autocomplete="on">
+                                        </div>
+                                        <div class="form-group mr-2">
+                                            <input id="search_nombre" type="text" placeholder="Nombre o descripción" class="form-control form-control-sm" autocomplete="on">
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-
-                            <table class="table table-hover m-0 table-centered dt-responsive nowrap w-100" cellspacing="0" id="tickets-table">
-                                <thead class="bg-light">
-                                <tr>
-                                    <th class="font-weight-medium">ID</th>
-                                    <th class="font-weight-medium">Creado por</th>
-                                    <th class="font-weight-medium">Título</th>
-                                    <th class="font-weight-medium">Asignado a</th>
-                                    <th class="font-weight-medium">Prioridad</th>
-                                    <th class="font-weight-medium">Estatus</th>
-                                    <th class="font-weight-medium">Fecha de registro</th>
-                                    <th class="font-weight-medium">Fecha de vencimiento</th>
-                                    <th class="font-weight-medium">Opciones</th>
-                                </tr>
-                                </thead>
-
-                                <tbody class="font-14">
-                                {% for t in tickets %}
+                            <div class="table-responsive">
+                                <table id="demo-foo-filtering" class="table table-bordered toggle-circle mb-0" data-page-size="7">
+                                    <thead>
                                     <tr>
-                                        <td><b>#{{ t.id }}</b></td>
-                                        <td style="white-space: nowrap; overflow: hidden;">
-                                            <a href="javascript: void(0);" class="text-dark">
-                                                <span >{{ t.autor.username }}</span>
-                                            </a>
-                                        </td>
+                                        <th data-toggle="true">#</th>
+                                        <th>Proyecto</th>
+                                        <th>Nombre</th>
+                                        <th data-hide="phone, tablet">Autor</th>
+                                        <th data-hide="phone, tablet">Asignado a</th>
+                                        <th>Prioridad</th>
+                                        <th>Estatus</th>
+                                        <th>Fecha de registro</th>
+                                        <th>Opciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for t in tickets %}
+                                        <tr>
+                                            <td>{{ t.proyecto.id  }}-{{t.no_tarea }}</td>
+                                            <td>{{ t.proyecto }}</td>
+                                            <td>{{ t.nombre }}</td>
+                                            <td>
+                                                <img src="/{{t.autor.perfil.avatar.url }}" alt="{{ t.autor }}" title="{{ t.autor }}" class="avatar-sm rounded-circle img-thumbnail" />
+                                            </td>
+                                            <td>
+                                                {% for a in t.asignaciones %}
+                                                        <a href="javascript: void(0);">
 
-                                        <td>
-                                            {{ t.nombre }}
-                                        </td>
-
-                                        <td>
-                                             {% for a in t.asignaciones %}
-                                            <a href="javascript: void(0);">
-
-                                                <img src="/{{ a.usuario.perfil.avatar.url }}" alt="{{ a.usuario }}" title="{{ a.usuario }}" class="avatar-sm rounded-circle img-thumbnail" />
-                                            </a>
-                                            {% endfor %}
-                                        </td>
-
-                                        <td>
-                                            <span class="badge badge-secondary">{{ t.prioridad.descripcion }}</span>
-                                        </td>
-
-                                        <td>
-                                            <span class="badge badge-success">Open</span>
-                                        </td>
-
-                                        <td>
-                                            {{ t.fecha_registro }}
-                                        </td>
-
-                                        <td>
-                                            2017/04/28
-                                        </td>
-
-                                        <td>
-                                            <div class="btn-group dropdown">
-                                                <a href="javascript: void(0);" class="dropdown-toggle arrow-none btn btn-light btn-sm" data-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-pencil mr-2 text-muted font-18 vertical-middle"></i>Edit Ticket</a>
-                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-check-all mr-2 text-muted font-18 vertical-middle"></i>Close</a>
-                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-delete mr-2 text-muted font-18 vertical-middle"></i>Remove</a>
-                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-star mr-2 font-18 text-muted vertical-middle"></i>Mark as Unread</a>
+                                                            <img src="/{{ a.usuario.perfil.avatar.url }}" alt="{{ a.usuario }}" title="{{ a.usuario }}" class="avatar-sm rounded-circle img-thumbnail" />
+                                                        </a>
+                                                    {% endfor %}
+                                            </td>
+                                            <td>{{ t.prioridad }}</td>
+                                            <td id="celda-estatus-{{ t.id }}">{{t.estatus}}</td>
+                                            <td>{{ t.fecha_registro }}</td>
+                                            <td>
+                                                <div class="btn-group dropdown mt-1">
+                                                    <button type="button" class="btn btn-primary waves-effect waves-light">Ver detalle</button>
+                                                    <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-chevron-down"></i></button>
+                                                    <div class="dropdown-menu" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(105px, 36px, 0px);">
+                                                        {% for s in status %}
+                                                            <a class="dropdown-item accion-ticket {% if s.clave == 'eliminado' %} demo-delete-row {% endif %}" id="accion-{{ t.id }}-{{ s.clave }}" href="#">{{s.descripcion}}</a>
+                                                        {% endfor %}
+                                                        <a class="dropdown-item accion-enviar-al-kanban" id="enviar-{{ t.id }}" href="#">Enviar al Kanban</a>
+                                                    </div>
                                                 </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                    <tr class="active">
+                                        <td colspan="12">
+                                            <div class="text-right">
+                                                <ul class="pagination pagination-rounded justify-content-end footable-pagination m-t-10 mb-0"></ul>
                                             </div>
                                         </td>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div><!-- end col -->
+                                    </tfoot>
+                                </table>
+                            </div> <!-- end .table-responsive-->
+                        </div> <!-- end card-box -->
+                    </div> <!-- end col -->
                 </div>
-                <!-- end row -->
+
+
+    <div id="modal-detalle" class="modal fade bs-example-modal-xl" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="titulo-tarea">Nuevo ticket</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Right Sidebar -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                            <form  method="post" id="form-ticket" enctype="multipart/form-data">
+
+                                <div class="card-box">
+
+                                        <div class="btn-group">
+                                            <button type="button" id="texto-prioridad-tarea" class="btn btn-sm btn-light dropdown-toggle waves-effect" data-toggle="dropdown" aria-expanded="false">
+                                                <i class="mdi font-18"></i> Prioridad alta
+                                                <i class="mdi mdi-chevron-down"></i>
+                                            </button>
+                                            <div class="dropdown-menu" >
+                                                <span class="dropdown-header">Cambiar la prioridad :</span>
+
+                                                {% for prioridad in prioridades %}
+                                                 <a class="dropdown-item prioridad-tarea" data-value="{{ prioridad.id }}" href="javascript: void(0);">{{ prioridad.descripcion }}</a>
+                                                {% endfor %}
+
+
+                                            </div>
+                                        </div>
+
+                                            <div class="btn-group float-right">
+                                                <div class="media mb-4 mt-1">
+                                                    <img id="imagen-autor-tarea" class="d-flex mr-2 rounded-circle avatar-sm" src="{% static "assets/images/users/avatar-2.jpg" %}" alt="Generic placeholder image">
+                                                    <div class="media-body">
+                                                        <h6 id="username-autor-tarea" class="m-0 font-14"></h6>
+                                                        <small id="email-autor-tarea" class="text-muted"></small>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <br>
+
+                                            <div class="input-group">
+                                                 <select  id="proyecto" name="proyecto" class="form-control font-18" required >
+                                                 <option value="">Selecciona un proyecto</option>
+                                                     {% for e in equipos %}
+                                                            <option value="{{e.proyecto.id}}">{{e.proyecto.nombre}}</option>
+                                                        {% endfor %}
+                                                </select>
+
+                                            </div>
+                                            <br>
+                                             <div class="input-group">
+                                                    <input type="text" id="titulo-tarea-editable" name="nombre" required class="form-control font-18" placeholder="La última tarea del proyecto" aria-label="La última tarea del proyecto" aria-describedby="basic-addon2">
+                                            </div>
+
+                                            <row>
+
+                                                <div class="media mb-4 mt-1">
+
+                                                </div>
+
+                                                <div id="toolbar">
+                                                    <select class="ql-size">
+                                                        <option value="small"></option>
+                                                        <!-- Note a missing, thus falsy value, is used to reset to default -->
+                                                        <option selected></option>
+                                                        <option value="large"></option>
+                                                        <option value="huge"></option>
+                                                    </select>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-list" value="ordered" type="button"></button>
+                                                    <button class="ql-list" value="bullet" type="button"></button>
+                                                </div>
+
+                                                <div id="descripcion-tarea" style="height: 300px;">
+
+                                                </div>
+                                                <input id="descripcion_aux" name="descripcion_aux" type="hidden">
+                                            </row>
+
+                                            <hr/>
+
+
+
+                                            <input type="file" name="files" class="form-control" id="boton-imagen" multiple style="display: none" >
+
+
+                                            <div class="row" id="adjuntos">
+                                                <div class="col-sm-2">
+                                                    <a href="#"> <img id="imagen-selector" src="{% static 'assets/images/agregar-nuevo-archivo.png' %}" alt="attachment" title="Agregar nuevo" class="img-thumbnail img-responsive"> </a>
+                                                </div>
+                                            </div>
+
+                                </div> <!-- card-box -->
+                                <div class="text-right">
+                                    <button type="submit" id="guardar-ticket" class="btn btn-primary btn-rounded width-sm">Enviar</button>
+                                </div>
+
+                                    <div class="clearfix"></div>
+                                </form>
+                            </div>
+                        </div> <!-- end Col -->
+                    </div><!-- End row -->
+                </div>
+            </div>
+    </div>
+    <div id="clones" class="modal">
+        <div id="adjunto-template" class="col-sm-2">
+                    <a href="#" target="_blank"> <img id="imagen" src="" alt="attachment" class="img-thumbnail img-responsive"> </a>
+                    <span id="nombre_archivo">hellos</span>
+        </div>
+        <div id="menu-opciones-td-template">
+        <div class="btn-group dropdown mt-1" id="menu-opciones-template">
+            <button type="button" class="btn btn-primary waves-effect waves-light">Ver detalle</button>
+            <button type="button" class="btn btn-primary dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-chevron-down"></i></button>
+            <div class="dropdown-menu" id="lista" x-placement="bottom-start" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(105px, 36px, 0px);">
+                {% for s in status %}
+                    <a class="dropdown-item accion-ticket {% if s.clave == 'eliminado' %} demo-delete-row {% endif %}" id="accion-X-{{ s.clave }}" href="#">{{s.descripcion}}</a>
+                {% endfor %}
+                <a class="dropdown-item accion-enviar-al-kanban" id="enviar-x" href="#">Enviar al Kanban</a>
+            </div>
+        </div>
+    </div>
+
+    </div>
 
 {% endblock %}
 
 {% block extrajs %}
-    <script src="{% static 'assets/libs/datatables/jquery.dataTables.min.js' %}"></script>
-        <script src=" {% static 'assets/libs/datatables/dataTables.bootstrap4.js' %}"></script>
-        <script src="{% static 'assets/libs/datatables/responsive.bootstrap4.min.js' %}"></script>
+        <script src="{% static 'assets/libs/footable/footable.all.min.js' %}"></script>
+    <script src="{% static  'assets/libs/quill/quill.min.js'%}"></script>
+    <script src="{% static 'assets/libs/jquery-toast/jquery.toast.min.js' %}"></script>
+
+
 
     <script>
 
-    $(document).ready(function () {
-    $('#tickets-table').DataTable({
+    $(window).on('load', function() {
 
-        columnDefs:[{targets:2,className:"truncate"}],
-        createdRow: function(row){
-        var td = $(row).find(".truncate");
-        td.attr("title", td.html());
-        },
+        let token = '{{csrf_token}}';
 
-        "language": {
-            "paginate": {
-                "previous": "<i class='mdi mdi-chevron-left'>",
-                "next": "<i class='mdi mdi-chevron-right'>"
-            }
-        },
-        "drawCallback": function () {
-            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+
+
+        $("#form-ticket").submit(function(e) {
+            $('#guardar-ticket').prop( "disabled", true );
+            proyecto_seleccionado= $( "#proyecto option:selected" ).text();
+            e.preventDefault();
+            $('#descripcion_aux').val(quill.root.innerHTML);
+            let formData = new FormData(this);
+            $.ajax({
+                url: '{% url 'tickets' %}',
+                type: 'POST',
+                data: formData,
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+                success: function (data) {
+                    $.toast({
+                            heading: 'Crear un nuevo ticket',
+                            text: 'Ticket enviado',
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            position: 'bottom-right',
+                            allowToastClose: false
+                        });
+
+                    $('#modal-detalle').modal('toggle');
+                    var footable = addrow.data('footable');
+
+                    let m_template = $("#menu-opciones-td-template");
+                    let menu_div = m_template.clone();
+                    menu_div.attr("id","menu-opciones-td-template"+data.id);
+                    menu_div.find('#enviar-x').attr("id",'enviar-'+data.id);
+                    menu = menu_div.find('#lista');
+                    menu.children(".accion-ticket").each(function(){
+                       id_elemento= $(this).attr('id').split('-');
+                       id_elemento[1]=data.id;
+                       $(this).attr('id',id_elemento.join("-"));
+                    });
+
+                    console.log(data);
+                    var newRow = '<tr id="fila-'+data.id+'">' +
+                        '<td style="text-align: center;">'+data.proyecto + '-'+data.no_tarea+'</td>' +
+                        '<td>'+proyecto_seleccionado+'</td>' +
+                        '<td>'+data.nombre+'</td>' +
+                        '<td><img src="/'+data.autor.perfil.avatar+'" alt="'+data.autor.username +'" title="'+ data.autor.username +'" class="avatar-sm rounded-circle img-thumbnail" />\n</td>' +
+                        '<td></td>' +
+                        '<td>'+data.prioridad.descripcion+'</td>' +
+                        '<td id ="celda-estatus-'+data.id+'">Sin priorizar</td>' +
+                        '<td>'+data.fecha_registro+'</td>' +
+                        '<td>'+menu_div.html()+'</td>'+
+                        '</tr>';
+                    footable.appendRow(newRow);
+                },
+            cache: false,
+            contentType: false,
+            processData: false
+            });
+        });
+
+        $('#modal-detalle').on('shown.bs.modal', function (event) {
+            $('#guardar-ticket').prop( "disabled", false );
+            $("#adjunto-90").remove();
+        });
+
+
+        function actualizarEstatus(input){
+
+            let tarea = input.attr('id').split('-')[1]
+            let estatus = input.attr('id').split('-')[2]
+             $.ajax({
+                url: '{% url 'tickets' %}',
+                type: 'PUT',
+                data: {tarea: tarea,estatus:estatus},
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+                success: function (data) {
+                    $("#celda-estatus-"+tarea).html(input.text())
+                    $.toast({
+                        heading: 'Cambio de estatus',
+                        text: 'Se ha cambiado el estatus exitosamente',
+                        showHideTransition: 'slide',
+                        icon: 'success',
+                        position: 'bottom-right',
+                        allowToastClose: false
+                    });
+                }
+            })
         }
+
+        function enviarAlKanban(input){
+             let tarea = input.attr('id').split('-')[1]
+            $.ajax({
+                url: '{% url 'tickets' %}',
+                type: 'PATCH',
+                data: {tarea: tarea},
+                headers: { "X-CSRFToken": token },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success){
+                        $.toast({
+                            heading: 'Enviar ticket al Kanban',
+                            text: data.mensaje,
+                            showHideTransition: 'slide',
+                            icon: 'success',
+                            position: 'bottom-right',
+                            allowToastClose: false
+                        });
+                    }
+                    else {
+                        $.toast({
+                            heading: 'Enviar ticket al Kanban',
+                            text: data.mensaje,
+                            showHideTransition: 'slide',
+                            icon: 'error',
+                            position: 'bottom-right',
+                            hideAfter: false
+                    });
+                    }
+                }
+            })
+        }
+
+        $(".accion-enviar-al-kanban").click(function () {
+            let input = $(this);
+            enviarAlKanban(input);
+        })
+
+        $(".accion-ticket").click(function () {
+            let input = $(this);
+            actualizarEstatus(input);
+        })
+
+        $("#imagen-selector").click(function(){
+            $("#boton-imagen").click();
+        });
+
+         $("#boton-imagen").change(function(){
+            readURL(this);
+
+         });
+
+          function readURL(input) {
+              $(".miniatura").remove();
+              for(var i = 0 ; i < input.files.length ; i++){
+                    if (input.files && input.files[i]) {
+                        var tipo = input.files[i].type;
+                        let nombre =input.files[i].name;
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            let plantilla = $("#adjunto-template");
+                                let nuevo = plantilla.clone();
+                                nuevo.attr("id","adjunto-"+90);
+                                nuevo.addClass('miniatura');
+                                if (tipo == 'image/png' || tipo == 'image/jpg' || tipo == 'image/jpeg' ||  tipo == 'image/bmp' || tipo == 'image/gif'  )
+                                    nuevo.find('img:first').attr("src",e.target.result);
+                                else
+                                    nuevo.find('img:first').attr("src","{% static 'assets/images/document.png' %}");
+
+                                nuevo.find('#nombre_archivo').text(nombre);
+                                nuevo.find('a:first').attr("href",e.target.result);
+                                $("#adjuntos").append(nuevo);
+
+
+                        }
+                        reader.readAsDataURL(input.files[i]);
+                    }
+              }
+        }
+
+    // Tabla
+    // -----------------------------------------------------------------
+    var filtering = $('#demo-foo-filtering');
+    filtering.footable().on('footable_filtering', function (e) {
+        var selected = $('#filter-status').find(':selected').val();
+        //var selected = $('#filter-proyecto').find(':selected').val();
+        e.filter += (e.filter && e.filter.length > 0) ? ' ' + selected : selected;
+        e.clear = !e.filter;
     });
+
+    // Filter proyecto
+    $('#filter-proyecto').change(function (e) {
+        e.preventDefault();
+        filtering.trigger('footable_filter', {filter: $(this).val()});
+    });
+
+    // Filter status
+    $('#filter-status').change(function (e) {
+        e.preventDefault();
+        filtering.trigger('footable_filter', {filter: $(this).val()});
+    });
+
+    $('#filter-prioridades').change(function (e) {
+        e.preventDefault();
+        filtering.trigger('footable_filter', {filter: $(this).val()});
+    });
+
+    // Search input
+    $('#search_numero').on('input', function (e) {
+        e.preventDefault();
+        filtering.trigger('footable_filter', {filter: $(this).val()});
+    });
+
+    $('#search_nombre').on('input', function (e) {
+        e.preventDefault();
+        filtering.trigger('footable_filter', {filter: $(this).val()});
+    });
+
+
+    // Eventos de elementos creados dinámicamente
+    // -----------------------------------------------------------------
+    var addrow = $('#demo-foo-filtering');
+
+    addrow.footable().on('click', '.demo-delete-row', function() {
+        //get the footable object
+        var footable = addrow.data('footable');
+        //get the row we are wanting to delete
+        var row = $(this).parents('tr:first');
+        //delete the row
+        footable.removeRow(row);
+    });
+
+    addrow.footable().on('click', '.accion-ticket', function(e) {
+            let input = $(this);
+            actualizarEstatus(input);
+    });
+
+    addrow.footable().on('click', '.accion-enviar-al-kanban', function() {
+        let input = $(this);
+        enviarAlKanban(input);
+    });
+
+     var quill = new Quill('#descripcion-tarea', {
+            modules: {
+                toolbar: '#toolbar'
+            },
+            placeholder: 'Explica en qué consiste tu tarea',
+            theme: 'snow'
+        });
+
+});
+
+    $(document).ready(function () {
+
 });
     </script>
 

@@ -1,0 +1,206 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block extracss %}
+    <link href="{% static 'assets/libs/datatables/dataTables.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static 'assets/libs/datatables/responsive.bootstrap4.css' %}" rel="stylesheet" type="text/css" />
+    <style>
+    .truncate {
+        max-width:250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        word-break: keep-all;
+}
+    </style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Batools</a></li>
+    <li class="breadcrumb-item"><a href="javascript: void(0);">Apps</a></li>
+    <li class="breadcrumb-item">Proyecto</li>
+     <li class="breadcrumb-item active">Configuración</li>
+{% endblock %}
+{% block title %}
+    Configuración del proyecto y equipo de trabajo
+{% endblock %}
+
+{% block rows %}
+
+   <div class="row">
+                    <div class="col-12">
+                        <div class="card-box">
+                            <h4 class="header-title">{{ proyecto }}</h4>
+                            <p class="sub-header">
+                                Configure los días para cada sprint así como el canal y el token para envío de mensajes para slack
+                            </p>
+
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="p-2">
+                                        <form class="form-horizontal" role="form" id="formulario_configuracion">
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label" for="simpleinput">Nombre <span class="text-danger">*</span></label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" id="nombre" name="nombre"  required class="form-control" value="{{ proyecto.nombre }}" >
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label" for="example-textarea">Descripción <span class="text-danger">*</span></label>
+                                                <div class="col-sm-10">
+                                                    <textarea class="form-control" id="descripcion" name="descripcion" required rows="5" >{{ proyecto.descripcion }}</textarea>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label" for="example-helping">Slack Bot Token</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="slack_bot_token" name="slack_bot_token" placeholder="Slack Bot Token" value="{% if proyecto.slack_bot_token %}{{proyecto.slack_bot_token  }} {% endif %}">
+                                                    <span class="help-block"><small>A block of help text that breaks onto a new line and may extend beyond one line.</small></span>
+                                                </div>
+                                            </div>
+                                             <div class="form-group row">
+                                                <label class="col-sm-2 col-form-label" for="example-helping">Canal de Slack</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" id="slack_channel_id" name="slack_channel_id" placeholder="Canal de Slack" value="{% if proyecto.slack_channel_id %} {{ proyecto.slack_channel_id }} {% endif %}">
+                                                    <span class="help-block"><small>A block of help text that breaks onto a new line and may extend beyond one line.</small></span>
+                                                </div>
+                                            </div>
+                                        <button type="submit" class="btn btn-primary">Guardar configuración</button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- end row -->
+                        </div>
+
+                    </div>
+   </div>
+
+
+     <div class="row">
+                    <div class="col-md-6">
+                        <div class="card-box">
+                            <h4 class="header-title mb-3">Agregar un nuevo integrante</h4>
+
+                            <form role="form" id="formulario_equipo">
+                                 <div class="form-group row">
+                                    <select class="form-control custom-select mt-3" id="usuario" name="usuario" required>
+                                    <option value="">Selecciona un usuario</option>
+
+                                       {% for u in usuarios %}
+                                        <option value="{{ u.id }}">{{ u }}</option>
+                                        {% endfor %}
+                                    </select>
+                                 </div>
+
+                                <div class="form-group row">
+                                    <select class="form-control custom-select mt-3" id="rol" name="rol" required>
+                                    <option value="">Selecciona un rol</option>
+                                        {% for r in roles %}
+                                        <option value="{{ r.id }}">{{ r }}</option>
+                                        {% endfor %}
+                                    </select>
+                                 </div>
+                                <button type="submit" class="btn btn-primary">Agregar nuevo integrante</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- end col -->
+
+                    <div class="col-md-6">
+                        <div class="card-box">
+                            <h4 class="header-title mb-3">Equipo de trabajo</h4>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Usuario</th>
+                                        <th>Correo</th>
+                                        <th>Opciones</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for e in equipo %}
+                                    <tr>
+                                        <th scope="row">
+                                            <img src="/{{ e.usuario.perfil.avatar.url }}" alt="{{ e.usuario }}" title="{{ e.usuario }}" class="avatar-sm rounded-circle img-thumbnail" />
+
+                                        </th>
+                                        <td>{{ e.usuario }}</td>
+                                        <td>{{ e.usuario.email }}</td>
+                                        <td>
+
+                                            <div class="btn-group dropdown">
+                                                <a href="javascript: void(0);" class="dropdown-toggle arrow-none btn btn-light btn-sm" data-toggle="dropdown" aria-expanded="false"><i class="mdi mdi-dots-horizontal"></i></a>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-check-all mr-2 text-muted font-18 vertical-middle"></i>Hacerla administradora</a>
+                                                    <a class="dropdown-item" href="#"><i class="mdi mdi-delete mr-2 text-muted font-18 vertical-middle"></i>Quitar del equipo</a>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- end row -->
+
+
+{% endblock %}
+
+{% block extrajs %}
+
+
+    <script>
+
+    $(document).ready(function () {
+        let token = '{{csrf_token}}';
+
+        $("#formulario_configuracion").submit(function(e) {
+            e.preventDefault();
+            let form = $(this);
+            console.log(form.serialize());
+            $.ajax({
+                headers: { "X-CSRFToken": token },
+                type: 'put',
+                url: '{% url 'proyecto' proyecto.id %}',
+                data: form.serialize(),
+                success: function (data) {
+                    alert("Configuración del proyecto realizada correctamente");
+                }
+            });
+        });
+
+        $("#formulario_equipo").submit(function(e) {
+            e.preventDefault();
+            let form = $(this);
+            console.log(form.serialize());
+            $.ajax({
+                headers: { "X-CSRFToken": token },
+                type: 'post',
+                url: '{% url 'proyecto-equipo' proyecto.id %}',
+                data: form.serialize(),
+                success: function (data) {
+                    alert("Usuario agregado al equipo correctamente");
+                }
+            });
+        });
+
+
+});
+    </script>
+
+{% endblock %}

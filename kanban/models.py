@@ -5,6 +5,15 @@ from usuarios.models import *
 
 # Create your models here.
 
+class TipoTarea (models.Model):
+    nombre =  models.TextField(max_length=25)
+    clave = models.TextField(max_length=25, default='kanban')
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table = "tipos_tarea"
 
 class Prioridad (models.Model):
     nombre = models.TextField(max_length=25)
@@ -28,6 +37,7 @@ class ListaKanban (models.Model):
     col_finalizado = models.BooleanField(default=False)
     color = models.TextField(max_length=8)
     orden = models.PositiveSmallIntegerField(default=1)
+    fijar_en_kanban = models.BooleanField(default=True)
     autor = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def tareas(self):
@@ -44,6 +54,7 @@ class Tarea (models.Model):
     lista_kanban = models.ForeignKey(ListaKanban, on_delete=models.PROTECT, blank=True, null=True)
     proyecto = models.ForeignKey(Proyecto, on_delete=models.PROTECT)
     prioridad = models.ForeignKey(Prioridad, on_delete=models.PROTECT, blank=True, null=True)
+    tipo_tarea = models.ForeignKey(TipoTarea, on_delete=models.PROTECT, default=1)
     estatus = models.ForeignKey(Estatus, on_delete=models.PROTECT, default=1)
     orden = models.PositiveSmallIntegerField(default=1)
     no_tarea = models.IntegerField(default=1)
@@ -52,11 +63,16 @@ class Tarea (models.Model):
     vencimiento = models.DateField(null=True, blank=True)
     inicio = models.DateTimeField(null=True, blank=True)
     fin = models.DateTimeField(null=True, blank=True)
+    fijar_en_kanban = models.BooleanField(default=True)
     autor = models.ForeignKey(User, on_delete=models.PROTECT)
     fecha_registro = models.DateField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.orden) + " (" + self.lista_kanban.nombre+")"
+        try:
+            nombre_lista= ' - '+self.lista_kanban.nombre+' -'
+        except:
+            nombre_lista = ' - '+self.estatus.descripcion+' -'
+        return self.tipo_tarea.nombre + " - " + str(self.no_tarea) + nombre_lista
 
     @property
     def adjuntos(self):

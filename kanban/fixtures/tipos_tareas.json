@@ -1,0 +1,18 @@
+[
+  {
+    "model": "kanban.TipoTarea",
+    "pk": 1,
+    "fields": {
+      "nombre": "Kanban",
+      "clave": "kanban"
+    }
+  },
+   {
+    "model": "kanban.TipoTarea",
+    "pk": 2,
+    "fields": {
+      "nombre": "Ticket",
+      "clave": "ticket"
+    }
+  }
+]
