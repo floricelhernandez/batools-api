@@ -1,8 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from usuarios.managers import CustomUserManager
+from django.utils.translation import ugettext_lazy as _
+
 
 # Create your models here.
-
 
 class Perfil(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.PROTECT)
@@ -15,3 +18,6 @@ class Perfil(models.Model):
 
     class Meta:
         db_table = "usuarios_perfiles"
+
+
+

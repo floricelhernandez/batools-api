@@ -1,18 +1,29 @@
 [
   {
-    "model": "kanban.TipoTarea",
+    "model": "proyectos.Categoria",
     "pk": 1,
     "fields": {
       "nombre": "Kanban",
-      "clave": "kanban"
+      "clave": "kanban",
+      "descripcion": "Cree múltiples tableros para la gestión de sus tareas"
+    }
+  },
+  {
+    "model": "proyectos.Categoria",
+    "pk": 2,
+    "fields": {
+      "nombre": "Scrum",
+      "clave": "scrum",
+      "descripcion": "Gestiones su proyecto mediante Sprint e historias de usuario"
     }
   },
    {
-    "model": "kanban.TipoTarea",
-    "pk": 2,
+    "model": "proyectos.Categoria",
+    "pk": 3,
     "fields": {
       "nombre": "Ticket",
-      "clave": "ticket"
+      "clave": "ticket",
+      "descripcion": "Manténganse enfocado en los tickets y KPI's"
     }
   }
 ]

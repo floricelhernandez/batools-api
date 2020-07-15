@@ -1,7 +1,20 @@
 from django.db import models
+from usuarios.models import *
 from django.contrib.auth.models import User
 
 # Create your models here.
+
+
+class Categoria (models.Model):
+    nombre = models.TextField(max_length=25)
+    clave = models.TextField(max_length=25)
+    descripcion = models.TextField(max_length=150, null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        db_table = "categorias"
 
 
 class Proyecto (models.Model):
@@ -9,6 +22,7 @@ class Proyecto (models.Model):
     descripcion = models.TextField()
     slack_bot_token = models.TextField(max_length=1500, null=True, blank=True)
     slack_channel_id = models.TextField(max_length=1500, null=True, blank=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT, blank=True, null=True)
     autor = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def sprints(self):

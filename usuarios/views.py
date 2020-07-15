@@ -1,13 +1,17 @@
+from django.forms import Form
 from django.shortcuts import render
 from django.views import generic
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from usuarios.models import *
-from allauth.account.forms import SignupForm, LoginForm
 from django.conf import settings
 from django import forms
 # Create your views here.
 
 
-class CustomLoginForm(LoginForm):
+class CustomLoginForm(Form):
     def __init__(self, *args, **kwargs):
         super(CustomLoginForm, self).__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
@@ -16,7 +20,7 @@ class CustomLoginForm(LoginForm):
             })
 
 
-class CustomSignupForm(SignupForm):
+class CustomSignupForm(Form):
     def __init__(self, *args, **kwargs):
         super(CustomSignupForm, self).__init__(*args, **kwargs)
         for fieldname, field in self.fields.items():
@@ -39,7 +43,28 @@ class CustomSignupForm(SignupForm):
         perfil.save()
         return user
 
+
 class LoginView(generic.View):
 
     def get(self, request):
         return render(request, 'usuarios/pages-login.html')
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        return RefreshToken.for_user(user)
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+        data['username'] = self.user.username
+        data['email'] = self.user.email
+        return data
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+    token_obtain_pair = TokenObtainPairView.as_view()

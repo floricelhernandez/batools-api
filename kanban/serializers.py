@@ -50,22 +50,34 @@ class AsignacionSerializer(serializers.ModelSerializer):
         model = Asignacion
         fields = '__all__'
 
-
-
-
-
 class TareaSerializer(serializers.ModelSerializer):
     autor = AutorSerializer(many=False, read_only=True)
     prioridad = PrioridadSerializer(many=False, read_only=True)
     adjuntos = AdjuntoSerializer(many=True, read_only=True)
-    #comentarios = ComentarioSerializer(many=True, read_only=True)
+    asignaciones = AsignacionSerializer(many=True)
     comentarios = serializers.SerializerMethodField()
 
     def get_comentarios(self, instance):
-        songs = Comentario.objects.filter(tarea_id=instance.id).order_by('-id')
-        return ComentarioSerializer(songs, many=True).data
+        coms = Comentario.objects.filter(tarea_id=instance.id).order_by('-id')
+        return ComentarioSerializer(coms, many=True).data
 
     class Meta:
         model = Tarea
         fields = '__all__'
 
+
+class ListasKanbanSerializar(serializers.ModelSerializer):
+    tareas = serializers.SerializerMethodField()
+    estatus_clave = serializers.SerializerMethodField()
+
+    def get_tareas(self, instance):
+        tareas = Tarea.objects.filter(lista_kanban=instance)
+        return TareaSerializer(tareas, many=True).data
+
+    def get_estatus_clave(self, instance):
+        clave = Estatus.objects.get(id=instance.estatus.id)
+        return clave.clave
+
+    class Meta:
+        model = ListaKanban
+        fields = '__all__'

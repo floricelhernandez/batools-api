@@ -24,6 +24,14 @@ class KanbanView(LoginRequiredMixin, generic.ListView):
         return context
 
 
+class KanbanAPIView(APIView):
+
+    def get(self, request, pk):
+        listas =  ListaKanban.objects.filter(sprint_id=pk, fijar_en_kanban=True).order_by('orden')
+        serializers = ListasKanbanSerializar(listas, many=True)
+        return Response(serializers.data)
+
+
 class TareaApiView(APIView):
 
     def get(self, request, sprint_id):
