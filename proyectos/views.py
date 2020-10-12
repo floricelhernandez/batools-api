@@ -38,19 +38,14 @@ class ProyectoApiView(APIView):
         except Proyecto.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk):
-        snippet = self.get_object(pk)
+    def get(self, request, proyecto_id):
+        snippet = self.get_object(proyecto_id)
         serializer = ProyectoSerializer(snippet)
         return Response(serializer.data)
 
-    def post(self, pk):
-        proyecto = Proyecto()
-        proyecto.autor = self.request.user
-        proyecto.save()
-
-    def put(self, request, pk):
+    def put(self, request, proyecto_id):
         proyecto_json = request.POST
-        proyecto= Proyecto.objects.get(id=pk)
+        proyecto= Proyecto.objects.get(id=proyecto_id)
         proyecto.nombre = proyecto_json['nombre']
         proyecto.descripcion = proyecto_json['descripcion']
         proyecto.slack_bot_token =  proyecto_json['slack_bot_token']
@@ -67,10 +62,38 @@ class ProyectoApiView(APIView):
     def delete(self):
         pass
 
+class ListasKanbanListAPIView(APIView):
 
-class EquipoProyectoApiView(APIView):
+    def get(self, request, sprint_id):
+        listas =  ListaKanban.objects.filter(sprint_id=sprint_id, fijar_en_kanban=True).order_by('orden')
+        serializers = ListasKanbanSerializar(listas, many=True)
+        return Response(serializers.data)
+    
+    def post(self, request, sprint_id):
+        pass
 
-    def get(self, request):
+
+class EquipoKanbanAPIListView(APIView):
+
+    def get_sprint(self, pk):
+        try:
+            return Sprint.objects.get(pk=pk)
+        except Sprint.DoesNotExist:
+            raise Http404
+
+    def get(self, request, sprint_id):
+        sprint = self.get_sprint(sprint_id)
+        equipo = Equipo.objects.filter(proyecto=sprint.proyecto)
+        serializers = EquipoSerializer(equipo, many=True)
+        return Response(serializers.data)
+
+    def post(self, request, sprint_id):
+        pass
+
+
+class EquipoProyectoListApiView(APIView):
+
+    def get(self, request, proyecto_id):
         proyecto_id = request.GET['proyecto_id']
         equipo = Equipo.objects.filter(proyecto_id=proyecto_id)
         serializer = EquipoSerializer(equipo, many=True)

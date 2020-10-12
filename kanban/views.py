@@ -5,46 +5,36 @@ from kanban.serializers import *
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 
 
-class KanbanView(LoginRequiredMixin, generic.ListView):
-    template_name = 'kanban/kanban.html'
-    context_object_name = 'listas'
 
-    def get_queryset(self):
-        return ListaKanban.objects.filter(sprint_id=self.kwargs['sprint_id'], fijar_en_kanban=True).order_by('orden')
+class ListaTareasApiView(APIView):
 
-    def get_context_data(self, **kwargs):
-        context = super(KanbanView, self).get_context_data(**kwargs)
-        context['prioridades'] = Prioridad.objects.all().order_by('orden')
-        sprint = Sprint.objects.get(id=self.kwargs['sprint_id'])
-        context['equipo'] = Equipo.objects.filter(proyecto_id=sprint.proyecto.id)
-        return context
+    def get_lista_kanban(self, pk):
+        try:
+            return ListaKanban.objects.get(pk=pk)
+        except ListaKanban.DoesNotExist:
+            raise Http404
 
+    def get(self, request, lista_id):
+        try:
+            lista = self.get_lista_kanban(lista_id)
+            tareas = Tarea.objects.filter(lista_kanban__id= lista.pk)
+            serializer = TareaSerializer(tareas, many=True)
+            return Response(serializer.data)
+        except Http404 as http404:
+            return Response({"error: No se encontró el ID de la lista propocionada"}, status= status.HTTP_404_NOT_FOUND)
+        except Exception as ex:
+            return Response({ex}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class KanbanAPIView(APIView):
+    def post(self, request, lista_id):
 
-    def get(self, request, pk):
-        listas =  ListaKanban.objects.filter(sprint_id=pk, fijar_en_kanban=True).order_by('orden')
-        serializers = ListasKanbanSerializar(listas, many=True)
-        return Response(serializers.data)
-
-
-class TareaApiView(APIView):
-
-    def get(self, request, sprint_id):
-        id_tarea = request.GET['idTarea']
-        tarea = Tarea.objects.get(id=id_tarea)
-        serializer = TareaSerializer(tarea)
-        return Response(serializer.data)
-
-    def post(self, request, sprint_id):
-        mover_a = request.POST['moverA']
-        nombre = request.POST['nombre']
-        descripcion = request.POST['descripcion']
-        lista_kanban = ListaKanban.objects.get(estatus__clave=mover_a, sprint_id=sprint_id)
+        nombre = request.data['titulo']
+        lista_kanban = self.get_lista_kanban(lista_id)
         tarea = Tarea()
         tarea.nombre = nombre
         tarea.no_tarea = Tarea.objects.filter(proyecto=lista_kanban.sprint.proyecto).count()+1
@@ -73,6 +63,20 @@ class TareaApiView(APIView):
         serializer = TareaSerializer(tarea)
         return Response(serializer.data)
 
+
+class TareaApiView(APIView):
+
+    def get_tarea(self, pk):
+        try:
+            return Tarea.objects.get(pk=pk)
+        except Tarea.DoesNotExist:
+            raise Http404
+
+    def get(self, request, tarea_id):
+        tarea = self.get_tarea(tarea_id)
+        serializer = TareaSerializer(tarea)
+        return Response(serializer.data)
+
     def put(self, request, sprint_id):
         tarea_json = json.loads(request.POST['tarea'])
         tarea= Tarea.objects.get(id=tarea_json['id'])
@@ -88,33 +92,56 @@ class TareaApiView(APIView):
         }
         return JsonResponse(data)
 
-    def patch(self, request, sprint_id):
-        mover_a = request.POST['moverA']
-        id_tarea = request.POST['idTarea']
-        lista_kanban = ListaKanban.objects.get(estatus__clave=mover_a, sprint_id=sprint_id)
-        tarea = Tarea.objects.get(id=id_tarea)
-        tarea.lista_kanban = lista_kanban
-        tarea.estatus = lista_kanban.estatus
-        tarea.save()
-        data = {
-            'pk': "ok",
-        }
-        return JsonResponse(data)
+    def patch(self, request, tarea_id):
+        data=request.data
+        tarea = self.get_tarea(tarea_id)
+        tarea_serializer = TareaSerializer(tarea,data=data, partial=True)
 
+        if tarea_serializer.is_valid():
+            tarea_serializer.save()
+            return Response(tarea_serializer.data, status=status.HTTP_200_OK)
+
+        # return a meaningful error response
+        return Response(tarea_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ReordenarTareaApiView(APIView):
+
+    def get_tarea(self, pk):
+        try:
+            return Tarea.objects.get(pk=pk)
+        except Tarea.DoesNotExist:
+            raise Http404
+
+    def patch(self, request, tarea_id):
+        data=request.data
+        tarea = self.get_tarea(tarea_id)
+        tarea_serializer = TareaSerializer(tarea,data=data, partial=True)
+
+        if tarea_serializer.is_valid():
+            tarea_serializer.save()
+            tareas = Tarea.objects.filter(lista_kanban = tarea.lista_kanban, orden__gt=tarea.orden).order_by('orden')
+
+            for t in tareas:
+                t.orden = t.orden+1
+                t.save()
+
+            return Response(tarea_serializer.data, status=status.HTTP_200_OK)
+
+        # return a meaningful error response
+        return Response(tarea_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class AdjuntosApiView(APIView):
 
-    def get(self, request):
+    def get(self, request, tarea_id):
         id_tarea = request.GET['adjunto_id']
         adjunto = Adjunto.objects.get(id=id_tarea)
         serializer = AdjuntoSerializer(adjunto)
         return Response(serializer.data)
 
-    def post(self, request):
-        id_tarea = request.POST['tarea_id']
+    def post(self, request, tarea_id):
         archivo = request.FILES.get('adjunto')
         adjunto = Adjunto()
-        adjunto.tarea = Tarea.objects.get(id=id_tarea)
+        adjunto.tarea = Tarea.objects.get(id=tarea_id)
         adjunto.archivo = archivo
         adjunto.tipo = archivo.content_type
         adjunto.nombre_archivo = archivo.name
@@ -144,35 +171,31 @@ class ComentariosApiView(APIView):
         return Response(serializer.data)
 
 
-class AsignacionApiView(APIView):
+class AsignacionListApiView(APIView):
 
-    def post(self,request):
-        tarea_id = request.POST['tarea_id']
-        usuario_id = request.POST['usuario_id']
+    def post(self,request, tarea_id):
+        usuario_id = request.data['usuario']
         asignacion = None
         try:
             asignacion = Asignacion.objects.get(tarea_id= tarea_id, usuario_id=usuario_id, activo=True)
+            asignacion.activo = False
+            asignacion.save()
         except:
-            pass
-        if asignacion is None:
             asignacion = Asignacion()
             asignacion.tarea = Tarea.objects.get(id= tarea_id)
             asignacion.usuario = User.objects.get(id= usuario_id)
             asignacion.usuario_asigna = self.request.user
             asignacion.save()
-        else:
-            asignacion.activo = False
-            asignacion.save()
-
+            
         serializer = AsignacionSerializer(asignacion)
         return Response(serializer.data)
+    
 
+class AsignacionApiView(APIView):
 
+    def get (self, request, asignacion_id):
+        pass
 
-
-
-
-
-
-
+    def delete (self, reques, asignacion_id):
+        pass
 

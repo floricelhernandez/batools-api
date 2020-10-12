@@ -71,7 +71,7 @@ class ListasKanbanSerializar(serializers.ModelSerializer):
     estatus_clave = serializers.SerializerMethodField()
 
     def get_tareas(self, instance):
-        tareas = Tarea.objects.filter(lista_kanban=instance)
+        tareas = Tarea.objects.filter(lista_kanban=instance).order_by('orden')
         return TareaSerializer(tareas, many=True).data
 
     def get_estatus_clave(self, instance):
